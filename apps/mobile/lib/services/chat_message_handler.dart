@@ -48,6 +48,7 @@ class ChatStateUpdate {
   final bool resetStreaming;
   final bool markUserMessagesSent;
   final bool markUserMessagesFailed;
+  final String? userStatusClientMessageId;
 
   /// When true, messages transition to [MessageStatus.queued] instead of
   /// [MessageStatus.sent].  The server accepted the message but the agent was
@@ -68,7 +69,7 @@ class ChatStateUpdate {
   /// UUID update for an existing user entry. When the SDK echoes back a
   /// user_input with a UUID, we update the locally-added UserChatEntry rather
   /// than creating a duplicate.
-  final ({String text, String uuid})? userUuidUpdate;
+  final ({String text, String uuid, String? clientMessageId})? userUuidUpdate;
 
   const ChatStateUpdate({
     this.status,
@@ -93,6 +94,7 @@ class ChatStateUpdate {
     this.resetStreaming = false,
     this.markUserMessagesSent = false,
     this.markUserMessagesFailed = false,
+    this.userStatusClientMessageId,
     this.markUserMessagesQueued = false,
     this.sideEffects = const {},
     this.claudeSessionId,
@@ -237,6 +239,7 @@ class ChatMessageHandler {
         );
       case UserInputMessage(
         :final text,
+        :final clientMessageId,
         :final userMessageUuid,
         :final isSynthetic,
         :final isMeta,
@@ -248,21 +251,35 @@ class ChatMessageHandler {
           // SDK echoed user message with UUID — update existing entry's UUID
           // so it becomes rewindable, instead of adding a duplicate.
           return ChatStateUpdate(
-            userUuidUpdate: (text: text, uuid: userMessageUuid),
+            userUuidUpdate: (
+              text: text,
+              uuid: userMessageUuid,
+              clientMessageId: clientMessageId,
+            ),
           );
         }
         // No UUID — add as new entry (fallback)
         return ChatStateUpdate(
-          entriesToAdd: [UserChatEntry(text, status: MessageStatus.sent)],
+          entriesToAdd: [
+            UserChatEntry(
+              text,
+              clientMessageId: clientMessageId,
+              status: MessageStatus.sent,
+            ),
+          ],
         );
-      case InputAckMessage(:final queued):
+      case InputAckMessage(:final queued, :final clientMessageId):
         return ChatStateUpdate(
           markUserMessagesSent: true,
           markUserMessagesQueued: queued,
+          userStatusClientMessageId: clientMessageId,
         );
-      case InputRejectedMessage():
+      case InputRejectedMessage(:final clientMessageId):
         logger.warning('[handler] input_rejected');
-        return const ChatStateUpdate(markUserMessagesFailed: true);
+        return ChatStateUpdate(
+          markUserMessagesFailed: true,
+          userStatusClientMessageId: clientMessageId,
+        );
       case RenameResultMessage(:final success, :final error):
         if (!success) {
           logger.warning(
@@ -537,6 +554,7 @@ class ChatMessageHandler {
           UserChatEntry(
             m.text,
             status: MessageStatus.sent,
+            clientMessageId: m.clientMessageId,
             messageUuid: m.userMessageUuid,
             imageCount: m.imageCount,
             imageUrls: m.imageUrls,

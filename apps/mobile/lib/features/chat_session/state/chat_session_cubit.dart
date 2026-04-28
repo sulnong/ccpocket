@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/logger.dart';
 import '../../../models/messages.dart';
@@ -18,6 +19,8 @@ import 'streaming_state_cubit.dart';
 /// processing to [ChatMessageHandler]. The resulting [ChatStateUpdate] is
 /// applied to the immutable [ChatSessionState].
 class ChatSessionCubit extends Cubit<ChatSessionState> {
+  static const _uuid = Uuid();
+
   final String sessionId;
   final Provider? provider;
   final BridgeService _bridge;
@@ -224,7 +227,12 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
           ? MessageStatus.queued
           : MessageStatus.sent;
       int targetIndex = -1;
-      if (update.markUserMessagesQueued) {
+      final clientMessageId = update.userStatusClientMessageId;
+      if (clientMessageId != null) {
+        targetIndex = entries.indexWhere(
+          (e) => e is UserChatEntry && e.clientMessageId == clientMessageId,
+        );
+      } else if (update.markUserMessagesQueued) {
         targetIndex = entries.indexWhere(
           (e) => e is UserChatEntry && e.status == MessageStatus.sending,
         );
@@ -243,6 +251,7 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
         final updatedEntry = UserChatEntry(
           entry.text,
           sessionId: entry.sessionId,
+          clientMessageId: entry.clientMessageId,
           imageBytesList: entry.imageBytesList,
           imageUrls: entry.imageUrls,
           imageCount: entry.imageCount,
@@ -259,12 +268,17 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
     // Mark user messages as failed (rejected by bridge)
     if (update.markUserMessagesFailed) {
       var changed = false;
+      final clientMessageId = update.userStatusClientMessageId;
       final updated = entries.map((e) {
-        if (e is UserChatEntry && e.status == MessageStatus.sending) {
+        if (e is UserChatEntry &&
+            (clientMessageId != null
+                ? e.clientMessageId == clientMessageId
+                : e.status == MessageStatus.sending)) {
           changed = true;
           return UserChatEntry(
             e.text,
             sessionId: e.sessionId,
+            clientMessageId: e.clientMessageId,
             imageBytesList: e.imageBytesList,
             imageUrls: e.imageUrls,
             imageCount: e.imageCount,
@@ -283,10 +297,14 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
 
     // Apply UUID update from SDK echo (makes the user entry rewindable)
     if (update.userUuidUpdate != null) {
-      final (:text, :uuid) = update.userUuidUpdate!;
+      final (:text, :uuid, :clientMessageId) = update.userUuidUpdate!;
       for (int i = entries.length - 1; i >= 0; i--) {
         final e = entries[i];
-        if (e is UserChatEntry && e.messageUuid == null && e.text == text) {
+        if (e is UserChatEntry &&
+            e.messageUuid == null &&
+            ((clientMessageId != null &&
+                    e.clientMessageId == clientMessageId) ||
+                (clientMessageId == null && e.text == text))) {
           e.messageUuid = uuid;
           didModifyEntries = true;
           break;
@@ -369,6 +387,7 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
             entries[i] = UserChatEntry(
               e.text,
               sessionId: e.sessionId,
+              clientMessageId: e.clientMessageId,
               imageBytesList: needsImages
                   ? existing.imageBytesList
                   : e.imageBytesList,
@@ -554,11 +573,13 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
     if (text.trim().isEmpty && (images == null || images.isEmpty)) return;
     if (isCodex && state.queuedInput != null) return;
 
+    final clientMessageId = _uuid.v4();
     final shouldAddLocalEntry = !isCodex || state.status == ProcessStatus.idle;
     if (shouldAddLocalEntry) {
       final entry = UserChatEntry(
         text,
         sessionId: sessionId,
+        clientMessageId: clientMessageId,
         imageBytesList: images?.map((i) => i.bytes).toList(),
       );
       emit(state.copyWith(entries: [...state.entries, entry]));
@@ -583,6 +604,7 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
       ClientMessage.input(
         text,
         sessionId: sessionId,
+        clientMessageId: clientMessageId,
         images: imagePayloads,
         skill: structuredMentions.skills.isNotEmpty
             ? structuredMentions.skills.first
@@ -1034,14 +1056,21 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
 
   /// Retry a failed user message.
   void retryMessage(UserChatEntry entry) {
+    final clientMessageId = _uuid.v4();
+    final retrySessionId = entry.sessionId ?? sessionId;
     emit(
       state.copyWith(
         entries: state.entries.map((e) {
           if (identical(e, entry)) {
             return UserChatEntry(
               entry.text,
-              sessionId: entry.sessionId ?? sessionId,
+              sessionId: retrySessionId,
+              clientMessageId: clientMessageId,
+              imageBytesList: entry.imageBytesList,
+              imageUrls: entry.imageUrls,
+              imageCount: entry.imageCount,
               status: MessageStatus.sending,
+              messageUuid: entry.messageUuid,
               timestamp: entry.timestamp,
             );
           }
@@ -1050,7 +1079,11 @@ class ChatSessionCubit extends Cubit<ChatSessionState> {
       ),
     );
     _bridge.send(
-      ClientMessage.input(entry.text, sessionId: entry.sessionId ?? sessionId),
+      ClientMessage.input(
+        entry.text,
+        sessionId: retrySessionId,
+        clientMessageId: clientMessageId,
+      ),
     );
   }
 

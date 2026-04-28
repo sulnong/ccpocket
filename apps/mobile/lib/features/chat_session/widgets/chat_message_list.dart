@@ -281,9 +281,11 @@ class _ChatMessageListState extends State<ChatMessageList> {
         _ =>
           '${message.runtimeType}:${entry.timestamp.microsecondsSinceEpoch}:$index',
       },
-      UserChatEntry(:final messageUuid, :final text) =>
+      UserChatEntry(:final messageUuid, :final clientMessageId, :final text) =>
         messageUuid != null && messageUuid.isNotEmpty
             ? 'user_uuid:$messageUuid'
+            : clientMessageId != null && clientMessageId.isNotEmpty
+            ? 'user_client:$clientMessageId'
             : 'user_ts:${entry.timestamp.microsecondsSinceEpoch}:${text.hashCode}:$index',
       StreamingChatEntry() => 'streaming',
     };

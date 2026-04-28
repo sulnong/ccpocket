@@ -131,8 +131,32 @@ describe("parseClientMessage", () => {
     expect(msg).toEqual({ type: "input", text: "hello" });
   });
 
+  it("parses input strict ack metadata", () => {
+    const msg = parseClientMessage(
+      '{"type":"input","sessionId":"s1","text":"hello","clientMessageId":"cm-1","baseSeq":42}',
+    );
+    expect(msg).toEqual({
+      type: "input",
+      sessionId: "s1",
+      text: "hello",
+      clientMessageId: "cm-1",
+      baseSeq: 42,
+    });
+  });
+
   it("rejects input without text", () => {
     expect(parseClientMessage('{"type":"input"}')).toBeNull();
+  });
+
+  it("rejects input with invalid strict ack metadata", () => {
+    expect(
+      parseClientMessage(
+        '{"type":"input","text":"hello","clientMessageId":1}',
+      ),
+    ).toBeNull();
+    expect(
+      parseClientMessage('{"type":"input","text":"hello","baseSeq":-1}'),
+    ).toBeNull();
   });
 
   it("parses push_register message", () => {

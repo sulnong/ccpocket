@@ -71,6 +71,23 @@ void main() {
       });
     });
 
+    test('ClientMessage.input serializes strict ack metadata', () {
+      final msg = ClientMessage.input(
+        'hello',
+        sessionId: 's1',
+        clientMessageId: 'cm-1',
+        baseSeq: 7,
+      );
+
+      expect(jsonDecode(msg.toJson()), {
+        'type': 'input',
+        'text': 'hello',
+        'sessionId': 's1',
+        'clientMessageId': 'cm-1',
+        'baseSeq': 7,
+      });
+    });
+
     test('ServerMessage parses history_delta', () {
       final msg = ServerMessage.fromJson({
         'type': 'history_delta',
@@ -390,6 +407,8 @@ void main() {
       final ack = msg as InputAckMessage;
       expect(ack.sessionId, 's1');
       expect(ack.queued, isTrue);
+      expect(ack.clientMessageId, isNull);
+      expect(ack.acceptedSeq, isNull);
     });
 
     test('defaults queued to false when omitted', () {
@@ -402,6 +421,20 @@ void main() {
       final ack = msg as InputAckMessage;
       expect(ack.sessionId, 's1');
       expect(ack.queued, isFalse);
+    });
+
+    test('parses strict ack metadata', () {
+      final msg = ServerMessage.fromJson({
+        'type': 'input_ack',
+        'sessionId': 's1',
+        'clientMessageId': 'cm-1',
+        'acceptedSeq': 12,
+      });
+
+      expect(msg, isA<InputAckMessage>());
+      final ack = msg as InputAckMessage;
+      expect(ack.clientMessageId, 'cm-1');
+      expect(ack.acceptedSeq, 12);
     });
   });
 

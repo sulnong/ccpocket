@@ -255,9 +255,16 @@ void main() {
 
       expect(cubit.state.entries, hasLength(1));
       expect(cubit.state.entries.first, isA<UserChatEntry>());
-      expect((cubit.state.entries.first as UserChatEntry).text, 'Hello Claude');
+      final entry = cubit.state.entries.first as UserChatEntry;
+      expect(entry.text, 'Hello Claude');
+      expect(entry.clientMessageId, isNotNull);
 
       expect(mockBridge.sentMessages, hasLength(1));
+      final payload =
+          jsonDecode(mockBridge.sentMessages.single.toJson())
+              as Map<String, dynamic>;
+      expect(payload['clientMessageId'], entry.clientMessageId);
+      expect(payload.containsKey('baseSeq'), isFalse);
     });
 
     test(
@@ -760,6 +767,66 @@ void main() {
         MessageStatus.sent,
       ]);
     });
+
+    test(
+      'input_ack with clientMessageId updates the matching message',
+      () async {
+        final cubit = createCubit('s1');
+        addTearDown(cubit.close);
+        await Future.microtask(() {});
+
+        cubit.sendMessage('Message A');
+        cubit.sendMessage('Message B');
+        final users = cubit.state.entries.whereType<UserChatEntry>().toList();
+        final secondClientMessageId = users[1].clientMessageId;
+
+        mockBridge.emitMessage(
+          InputAckMessage(
+            sessionId: 's1',
+            clientMessageId: secondClientMessageId,
+            queued: false,
+          ),
+          sessionId: 's1',
+        );
+        await Future.microtask(() {});
+
+        final updated = cubit.state.entries.whereType<UserChatEntry>().toList();
+        expect(updated.map((e) => e.status).toList(), [
+          MessageStatus.sending,
+          MessageStatus.sent,
+        ]);
+      },
+    );
+
+    test(
+      'input_rejected with clientMessageId fails only the matching message',
+      () async {
+        final cubit = createCubit('s1');
+        addTearDown(cubit.close);
+        await Future.microtask(() {});
+
+        cubit.sendMessage('Message A');
+        cubit.sendMessage('Message B');
+        final users = cubit.state.entries.whereType<UserChatEntry>().toList();
+        final firstClientMessageId = users[0].clientMessageId;
+
+        mockBridge.emitMessage(
+          InputRejectedMessage(
+            sessionId: 's1',
+            clientMessageId: firstClientMessageId,
+            reason: 'conflict',
+          ),
+          sessionId: 's1',
+        );
+        await Future.microtask(() {});
+
+        final updated = cubit.state.entries.whereType<UserChatEntry>().toList();
+        expect(updated.map((e) => e.status).toList(), [
+          MessageStatus.failed,
+          MessageStatus.sending,
+        ]);
+      },
+    );
 
     test('codex busy send waits for bridge queue state', () async {
       final cubit = createCubit('s1', provider: Provider.codex);

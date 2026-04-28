@@ -109,6 +109,8 @@ export type ClientMessage =
       type: "input";
       text: string;
       sessionId?: string;
+      clientMessageId?: string;
+      baseSeq?: number;
       images?: Array<{ base64: string; mimeType: string }>;
       imageId?: string;
       imageBase64?: string;
@@ -498,6 +500,7 @@ export type ServerMessage =
   | {
       type: "user_input";
       text: string;
+      clientMessageId?: string;
       userMessageUuid?: string;
       isSynthetic?: boolean;
       isMeta?: boolean;
@@ -782,6 +785,18 @@ export function parseClientMessage(data: string): ClientMessage | null {
         break;
       case "input":
         if (typeof msg.text !== "string") return null;
+        if (
+          msg.clientMessageId !== undefined &&
+          typeof msg.clientMessageId !== "string"
+        )
+          return null;
+        if (
+          msg.baseSeq !== undefined &&
+          (typeof msg.baseSeq !== "number" ||
+            !Number.isInteger(msg.baseSeq) ||
+            msg.baseSeq < 0)
+        )
+          return null;
         // Validate images array if provided
         if (msg.images !== undefined) {
           if (!Array.isArray(msg.images)) return null;

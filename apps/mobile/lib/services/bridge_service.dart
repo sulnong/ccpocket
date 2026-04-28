@@ -257,7 +257,9 @@ class BridgeService implements BridgeServiceBase {
               _runtimeStore.applyServerMessage(
                 sessionId,
                 msg,
-                historySeq: _readHistorySeq(json['historySeq']),
+                historySeq:
+                    _readHistorySeq(json['historySeq']) ??
+                    (msg is InputAckMessage ? msg.acceptedSeq : null),
               );
             }
             switch (msg) {
@@ -741,6 +743,7 @@ class BridgeService implements BridgeServiceBase {
     return _runtimeStore.messages(sessionId);
   }
 
+  @override
   int cachedSessionHistorySeq(String sessionId) {
     return _runtimeStore.latestHistorySeq(sessionId);
   }

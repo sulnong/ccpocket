@@ -2013,6 +2013,107 @@ describe("BridgeWebSocketServer resume/get_history flow", () => {
     bridge.close();
   });
 
+  it("echoes clientMessageId and acceptedSeq on input_ack", async () => {
+    const bridge = new BridgeWebSocketServer({ server: httpServer });
+    const ws = {
+      readyState: OPEN_STATE,
+      send: vi.fn(),
+    } as any;
+
+    (bridge as any).handleClientMessage(
+      {
+        type: "start",
+        projectPath: "/tmp/project-a",
+        provider: "claude",
+      },
+      ws,
+    );
+    await Promise.resolve();
+
+    const created = ws.send.mock.calls
+      .map((c: unknown[]) => JSON.parse(c[0] as string))
+      .find((m: any) => m.type === "system" && m.subtype === "session_created");
+    const sessionId = created.sessionId as string;
+
+    ws.send.mockClear();
+    (bridge as any).handleClientMessage(
+      {
+        type: "input",
+        sessionId,
+        text: "strict input",
+        clientMessageId: "cm-1",
+        baseSeq: 0,
+      },
+      ws,
+    );
+
+    const inputAck = ws.send.mock.calls
+      .map((c: unknown[]) => JSON.parse(c[0] as string))
+      .find((m: any) => m.type === "input_ack");
+    expect(inputAck).toMatchObject({
+      type: "input_ack",
+      sessionId,
+      clientMessageId: "cm-1",
+      acceptedSeq: expect.any(Number),
+      queued: false,
+    });
+    expect(inputAck.acceptedSeq).toBeGreaterThan(0);
+
+    bridge.close();
+  });
+
+  it("rejects strict input when another user input exists after baseSeq", async () => {
+    const bridge = new BridgeWebSocketServer({ server: httpServer });
+    const ws = {
+      readyState: OPEN_STATE,
+      send: vi.fn(),
+    } as any;
+
+    (bridge as any).handleClientMessage(
+      {
+        type: "start",
+        projectPath: "/tmp/project-a",
+        provider: "claude",
+      },
+      ws,
+    );
+    await Promise.resolve();
+
+    const created = ws.send.mock.calls
+      .map((c: unknown[]) => JSON.parse(c[0] as string))
+      .find((m: any) => m.type === "system" && m.subtype === "session_created");
+    const sessionId = created.sessionId as string;
+    const baseSeq = (bridge as any).sessionManager.get(sessionId).historyRevision;
+    (bridge as any).sessionManager.appendHistory(sessionId, {
+      type: "user_input",
+      text: "from another client",
+    });
+
+    ws.send.mockClear();
+    (bridge as any).handleClientMessage(
+      {
+        type: "input",
+        sessionId,
+        text: "offline input",
+        clientMessageId: "cm-conflict",
+        baseSeq,
+      },
+      ws,
+    );
+
+    const rejected = ws.send.mock.calls
+      .map((c: unknown[]) => JSON.parse(c[0] as string))
+      .find((m: any) => m.type === "input_rejected");
+    expect(rejected).toMatchObject({
+      type: "input_rejected",
+      sessionId,
+      clientMessageId: "cm-conflict",
+      reason: "conflict",
+    });
+
+    bridge.close();
+  });
+
   it("codex busy input is queued and included in session_list", async () => {
     const bridge = new BridgeWebSocketServer({ server: httpServer });
     const ws = {

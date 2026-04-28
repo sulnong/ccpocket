@@ -151,5 +151,35 @@ void main() {
         bridge.dispose();
       },
     );
+
+    test('input_ack acceptedSeq advances cached history sequence', () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final socketReady = Completer<WebSocket>();
+
+      server.transform(WebSocketTransformer()).listen((socket) {
+        socketReady.complete(socket);
+      });
+
+      final bridge = BridgeService();
+      bridge.connect('ws://127.0.0.1:${server.port}');
+
+      final socket = await socketReady.future;
+      socket.add(
+        jsonEncode({
+          'type': 'input_ack',
+          'sessionId': 's1',
+          'clientMessageId': 'cm-1',
+          'acceptedSeq': 8,
+        }),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(bridge.cachedSessionHistorySeq('s1'), 8);
+
+      bridge.disconnect();
+      await socket.close();
+      await server.close(force: true);
+      bridge.dispose();
+    });
   });
 }

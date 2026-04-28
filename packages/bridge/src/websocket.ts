@@ -1080,6 +1080,8 @@ export class BridgeWebSocketServer {
           return;
         }
         const text = msg.text;
+        const clientMessageId = msg.clientMessageId;
+        const baseSeq = msg.baseSeq;
         const codexSkills = msg.skills ?? (msg.skill ? [msg.skill] : []);
         const codexMentions = msg.mentions ?? [];
 
@@ -1122,6 +1124,20 @@ export class BridgeWebSocketServer {
         }
 
         if (
+          clientMessageId &&
+          baseSeq !== undefined &&
+          this.hasInputConflictSince(session.id, baseSeq)
+        ) {
+          this.send(ws, {
+            type: "input_rejected",
+            sessionId: session.id,
+            clientMessageId,
+            reason: "conflict",
+          });
+          break;
+        }
+
+        if (
           session.provider === "codex" &&
           !session.process.isWaitingForInput
         ) {
@@ -1129,6 +1145,7 @@ export class BridgeWebSocketServer {
             this.send(ws, {
               type: "input_rejected",
               sessionId: session.id,
+              ...(clientMessageId ? { clientMessageId } : {}),
               reason: "Queue is full",
             });
             break;
@@ -1147,6 +1164,7 @@ export class BridgeWebSocketServer {
             this.send(ws, {
               type: "input_rejected",
               sessionId: session.id,
+              ...(clientMessageId ? { clientMessageId } : {}),
               reason: "Queue is full",
             });
             break;
@@ -1170,18 +1188,23 @@ export class BridgeWebSocketServer {
           this.send(ws, {
             type: "input_ack",
             sessionId: session.id,
+            ...(clientMessageId ? { clientMessageId } : {}),
+            acceptedSeq: session.historyRevision,
             queued: true,
           });
           this.broadcastSessionList();
           break;
         }
-        this.sessionManager.appendHistory(session.id, {
+
+        const userEntry = this.sessionManager.appendHistory(session.id, {
           type: "user_input",
           text,
+          ...(clientMessageId ? { clientMessageId } : {}),
           timestamp: new Date().toISOString(),
           ...(images.length > 0 ? { imageCount: images.length } : {}),
           ...(imageRefs ? { images: imageRefs } : {}),
         } as ServerMessage);
+        const acceptedSeq = userEntry?.seq ?? session.historyRevision;
 
         // Persist images to Gallery Store asynchronously (fire-and-forget)
         if (images.length > 0 && this.galleryStore && session.projectPath) {
@@ -1204,6 +1227,8 @@ export class BridgeWebSocketServer {
           this.send(ws, {
             type: "input_ack",
             sessionId: session.id,
+            ...(clientMessageId ? { clientMessageId } : {}),
+            acceptedSeq,
             queued: false,
           });
           const codexProc = session.process as CodexProcess;
@@ -1265,6 +1290,8 @@ export class BridgeWebSocketServer {
           this.send(ws, {
             type: "input_ack",
             sessionId: session.id,
+            ...(clientMessageId ? { clientMessageId } : {}),
+            acceptedSeq,
             queued: isAgentBusySnapshot,
           });
           this.galleryStore
@@ -1317,6 +1344,8 @@ export class BridgeWebSocketServer {
         this.send(ws, {
           type: "input_ack",
           sessionId: session.id,
+          ...(clientMessageId ? { clientMessageId } : {}),
+          acceptedSeq,
           queued: wasQueued,
         });
 
@@ -4536,6 +4565,27 @@ export class BridgeWebSocketServer {
         .get(ws)
         ?.has("conversation_queue") ?? false
     );
+  }
+
+  private hasInputConflictSince(sessionId: string, baseSeq: number): boolean {
+    const delta = this.sessionManager.getHistorySince(sessionId, baseSeq);
+    if (!delta) return true;
+    if (delta.kind === "snapshot") return true;
+
+    return delta.entries.some((entry) => {
+      const msg = entry.message;
+      if (msg.type === "user_input" || msg.type === "result") return true;
+      if (msg.type === "system") {
+        const subtype = (msg as Record<string, unknown>).subtype;
+        return (
+          subtype === "session_switched" ||
+          subtype === "session_rewound" ||
+          subtype === "sandbox_restarted" ||
+          subtype === "session_stopped"
+        );
+      }
+      return false;
+    });
   }
 
   private sendConversationQueue(
