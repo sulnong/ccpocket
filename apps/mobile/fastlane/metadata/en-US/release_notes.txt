@@ -1,2 +1,3 @@
-- You can now select and send Codex plugins from @ mentions. This lets you direct tools like Computer Use from your phone.
-- Other minor fixes and improvements.
+• Improved reliability on spotty connections, with multiple fixes for session restore, pending actions, and queued Codex messages.
+• Added a scroll-first option for Git diffs.
+• Added keyboard shortcuts for chat input completion and editing.
