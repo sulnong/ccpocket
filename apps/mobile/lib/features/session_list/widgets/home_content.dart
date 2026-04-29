@@ -84,6 +84,7 @@ class HomeContent extends StatefulWidget {
   final VoidCallback? onDismissMacOSNativeAppBanner;
   final VoidCallback? onOpenMacOSNativeAppReleases;
   final VoidCallback? onOpenSupportSettings;
+  final bool? showInlineStopButtonOverride;
 
   const HomeContent({
     super.key,
@@ -124,6 +125,7 @@ class HomeContent extends StatefulWidget {
     this.onDismissMacOSNativeAppBanner,
     this.onOpenMacOSNativeAppReleases,
     this.onOpenSupportSettings,
+    this.showInlineStopButtonOverride,
   });
 
   @override
@@ -343,7 +345,8 @@ class HomeContentState extends State<HomeContent> {
     final selectedSession = shell?.selectedSession;
     final selectedSessionId = selectedSession?.sessionId;
     final selectedSessionProvider = selectedSession?.provider?.value;
-    final showInlineStopButton = shell != null;
+    final showInlineStopButton =
+        widget.showInlineStopButtonOverride ?? shell != null;
 
     // Compute derived state
     // Exclude running sessions from recent list to avoid duplicates

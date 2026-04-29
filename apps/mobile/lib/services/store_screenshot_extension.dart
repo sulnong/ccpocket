@@ -1174,6 +1174,7 @@ class _StoreWorkspaceListPane extends StatelessWidget {
                 namedOnly: false,
                 onToggleProvider: () {},
                 onToggleNamed: () {},
+                showInlineStopButtonOverride: true,
               ),
             ),
           ],
