@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dartssh2/dartssh2.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/machine.dart';
 import 'machine_manager_service.dart';
@@ -32,19 +33,66 @@ class SshStartupService {
   /// Timeout for command execution
   static const _commandTimeout = Duration(seconds: 30);
 
-  /// Start the Bridge service installed by
-  /// `npx --yes @ccpocket/bridge@latest setup`.
+  /// Verify that the Bridge service can be started before touching it.
+  ///
+  /// The auto-start service runs Bridge through npx, so report PATH problems
+  /// directly instead of waiting for a generic start timeout.
   ///
   /// macOS setup installs a launchd LaunchAgent, while Linux setup installs a
   /// systemd user service. Detect the remote init system at runtime because the
   /// mobile app only knows how to reach the machine over SSH.
-  static const _startCommand = r'''
+  static const _startPreflightCommand = r'''
+if command -v launchctl >/dev/null 2>&1; then
+  LABEL=com.ccpocket.bridge
+  PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+  if [ ! -f "$PLIST" ]; then
+    echo "Bridge auto-start setup is required. Run: npx @ccpocket/bridge@latest setup" >&2
+    exit 1
+  fi
+  if ! /bin/zsh -li -c 'command -v npx >/dev/null 2>&1'; then
+    echo "npx is not available in the remote login shell. Bridge auto-start uses npx. Fix Node.js/npm PATH on the machine, then run: npx @ccpocket/bridge@latest setup" >&2
+    exit 127
+  fi
+elif command -v systemctl >/dev/null 2>&1; then
+  SERVICE="$HOME/.config/systemd/user/ccpocket-bridge.service"
+  if [ ! -f "$SERVICE" ]; then
+    echo "Bridge auto-start setup is required. Run: npx @ccpocket/bridge@latest setup" >&2
+    exit 1
+  fi
+  EXEC_START=$(grep -E '^ExecStart=' "$SERVICE" | head -n 1 | sed 's/^ExecStart=//')
+  NPX_COMMAND=${EXEC_START%% *}
+  if [ -z "$NPX_COMMAND" ]; then
+    echo "Bridge auto-start setup is invalid. Run: npx @ccpocket/bridge@latest setup" >&2
+    exit 1
+  fi
+  if [ "${NPX_COMMAND#/}" != "$NPX_COMMAND" ]; then
+    if [ ! -x "$NPX_COMMAND" ]; then
+      echo "npx configured in the Bridge service is not executable: $NPX_COMMAND. Fix Node.js/npm PATH on the machine, then run: npx @ccpocket/bridge@latest setup" >&2
+      exit 127
+    fi
+  elif ! command -v "$NPX_COMMAND" >/dev/null 2>&1; then
+    echo "npx is not available in the remote SSH PATH. Bridge auto-start uses npx. Fix Node.js/npm PATH on the machine, then run: npx @ccpocket/bridge@latest setup" >&2
+    exit 127
+  fi
+else
+  echo "Neither launchctl nor systemctl is available" >&2
+  exit 127
+fi
+''';
+
+  /// Start the Bridge service installed by
+  /// `npx @ccpocket/bridge@latest setup`.
+  ///
+  /// macOS setup installs a launchd LaunchAgent, while Linux setup installs a
+  /// systemd user service. Detect the remote init system at runtime because the
+  /// mobile app only knows how to reach the machine over SSH.
+  static const _startServiceCommand = r'''
 if command -v launchctl >/dev/null 2>&1; then
   LABEL=com.ccpocket.bridge
   UID_VALUE=$(id -u)
   PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
   if [ ! -f "$PLIST" ]; then
-    echo "Bridge auto-start setup is required. Run: npx --yes @ccpocket/bridge@latest setup" >&2
+    echo "Bridge auto-start setup is required. Run: npx @ccpocket/bridge@latest setup" >&2
     exit 1
   fi
   MIGRATED=0
@@ -65,7 +113,7 @@ if command -v launchctl >/dev/null 2>&1; then
 elif command -v systemctl >/dev/null 2>&1; then
   SERVICE="$HOME/.config/systemd/user/ccpocket-bridge.service"
   if [ ! -f "$SERVICE" ]; then
-    echo "Bridge auto-start setup is required. Run: npx --yes @ccpocket/bridge@latest setup" >&2
+    echo "Bridge auto-start setup is required. Run: npx @ccpocket/bridge@latest setup" >&2
     exit 1
   fi
   if [ -f "$SERVICE" ] && grep -q "^ExecStart=.*npx @ccpocket/bridge@latest$" "$SERVICE"; then
@@ -78,6 +126,18 @@ else
   exit 127
 fi
 ''';
+
+  @visibleForTesting
+  static String get startCommandForTest => _startCommand;
+
+  @visibleForTesting
+  static const startPreflightCommandForTest = _startPreflightCommand;
+
+  @visibleForTesting
+  static String get updateCommandForTest => _updateCommand;
+
+  static String get _startCommand =>
+      '${_startPreflightCommand.trim()}\n\n$_startServiceCommand';
 
   /// Stop the Bridge service without removing the setup installed by npx.
   static const _stopCommand = r'''
@@ -94,6 +154,15 @@ else
   echo "Neither launchctl nor systemctl is available" >&2
   exit 127
 fi
+''';
+
+  static String get _updateCommand =>
+      '''
+set -e
+${_startPreflightCommand.trim()}
+${_stopCommand.trim()} || true
+sleep 1
+${_startCommand.trim()}
 ''';
 
   SshStartupService(this._machineManager);
@@ -299,7 +368,7 @@ fi
   /// Update Bridge Server on a remote machine via SSH.
   ///
   /// This only supports the auto-start service installed by
-  /// `npx --yes @ccpocket/bridge@latest setup`. Source checkouts are not
+  /// `npx @ccpocket/bridge@latest setup`. Source checkouts are not
   /// updated from the app.
   Future<SshResult> updateBridgeServer(
     String machineId, {
@@ -336,18 +405,10 @@ fi
       }
     }
 
-    final updateCommand =
-        '''
-set -e
-${_stopCommand.trim()} || true
-sleep 1
-${_startCommand.trim()}
-''';
-
     try {
       return await _executeCommand(
         machine,
-        updateCommand,
+        _updateCommand,
         password: sshPassword,
         privateKey: sshPrivateKey,
       );

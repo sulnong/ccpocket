@@ -536,6 +536,22 @@ void main() {
       expect(cubit.state.error, 'launchctl failed');
       expect(mockService.calls, isNot(contains('checkHealth:m1')));
     });
+
+    test('reports missing npx before health check', () async {
+      mockSsh.startResult = SshResult.failure(
+        'npx is not available in the remote login shell. Bridge auto-start uses npx.',
+      );
+      final cubit = createCubit();
+      addTearDown(cubit.close);
+      await Future.microtask(() {});
+      mockService.calls.clear();
+
+      final result = await cubit.startBridge('m1');
+
+      expect(result, false);
+      expect(cubit.state.error, contains('npx is not available'));
+      expect(mockService.calls, isNot(contains('checkHealth:m1')));
+    });
   });
 
   group('MachineManagerCubit - SSH update', () {
