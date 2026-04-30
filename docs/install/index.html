@@ -522,6 +522,19 @@
       margin-top: 12px;
       max-width: 880px;
     }
+    .resource-link {
+      margin-top: 22px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .resource-link a {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .resource-link a:hover {
+      text-decoration: underline;
+    }
 
     /* Footer */
     .footer {
@@ -615,6 +628,8 @@
         faq2A: "No. CC Pocket is designed around a self-hosted Bridge Server. Your coding-agent session runs on your own Mac or Linux machine.",
         faq3Q: "Is CC Pocket free?",
         faq3A: "Yes. CC Pocket is free to use. You still need your own Codex or Claude Code setup for the agent session itself.",
+        guidePrefix: "New to mobile coding agents?",
+        guideLink: "Read how to run Codex from iPhone or Android.",
         footnote: "CC Pocket is not affiliated with, endorsed by, or officially connected to Anthropic or OpenAI."
       },
       ja: {
@@ -661,6 +676,8 @@
         faq2A: "いいえ。CC PocketはセルフホストのBridge Serverを前提にしています。コーディングエージェントのセッションは自分のMacまたはLinuxマシン上で実行されます。",
         faq3Q: "CC Pocketは無料ですか？",
         faq3A: "はい。CC Pocketは無料で使えます。ただし、エージェントセッション自体には自分のCodexまたはClaude Code環境が必要です。",
+        guidePrefix: "モバイルでの使い方を知りたい場合は、",
+        guideLink: "iPhone / AndroidからCodexを使う手順を読めます。",
         footnote: "CC PocketはAnthropic社やOpenAI社と提携、推奨、または公式な関係を持つものではありません。"
       },
       zh: {
@@ -707,6 +724,8 @@
         faq2A: "不会。CC Pocket 以自托管 Bridge Server 为核心设计。你的编程智能体会话运行在自己的 Mac 或 Linux 机器上。",
         faq3Q: "CC Pocket 免费吗？",
         faq3A: "是的。CC Pocket 可以免费使用。你仍然需要自己的 Codex 或 Claude Code 环境来运行智能体会话。",
+        guidePrefix: "第一次使用移动端编程智能体？",
+        guideLink: "阅读如何从 iPhone 或 Android 运行 Codex。",
         footnote: "CC Pocket 与 Anthropic 或 OpenAI 没有附属、认可或官方联系。"
       },
       ko: {
@@ -753,6 +772,8 @@
         faq2A: "아니요. CC Pocket은 셀프 호스팅 Bridge Server를 중심으로 설계되었습니다. 코딩 에이전트 세션은 사용자의 Mac 또는 Linux 머신에서 실행됩니다.",
         faq3Q: "CC Pocket은 무료인가요?",
         faq3A: "네. CC Pocket은 무료로 사용할 수 있습니다. 에이전트 세션 자체에는 사용자의 Codex 또는 Claude Code 설정이 필요합니다.",
+        guidePrefix: "모바일 코딩 에이전트가 처음인가요?",
+        guideLink: "iPhone 또는 Android에서 Codex를 실행하는 방법을 읽어보세요.",
         footnote: "CC Pocket은 Anthropic 또는 OpenAI와 제휴, 보증 또는 공식 관계가 없습니다."
       }
     };
@@ -1026,6 +1047,10 @@
           <p data-i18n="faq3A">Yes. CC Pocket is free to use. You still need your own Codex or Claude Code setup for the agent session itself.</p>
         </details>
       </div>
+      <p class="resource-link">
+        <span data-i18n="guidePrefix">New to mobile coding agents?</span>
+        <a href="../how-to-run-codex-from-iphone-android/" data-i18n="guideLink">Read how to run Codex from iPhone or Android.</a>
+      </p>
     </section>
     
     <footer class="footer">

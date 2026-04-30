@@ -1,17 +1,17 @@
 AI coding agents can now write entire features autonomously. Your job? Approve, answer, review. That doesn't need a laptop — it needs your phone.
 
-CC Pocket lets you start Codex and Claude sessions from your phone, make decisions on the go, and ship code from anywhere.
+CC Pocket is a mobile client for OpenAI Codex and Claude Code. Start Codex sessions from Android, iPhone, iPad, or Mac, make decisions on the go, and keep the agent running on your own machine.
 
 This app is not affiliated with, endorsed by, or associated with Anthropic or OpenAI.
 
 <b>START SESSIONS FROM YOUR PHONE</b>
-Launch new coding sessions directly from your phone — no need to open a laptop first. Pick a project, set a permission mode, and start coding in seconds.
+Launch new Codex or Claude Code sessions directly from your phone — no need to open a laptop first. Pick a project, set a permission mode, and start coding in seconds.
 
 <b>BATCH APPROVAL AT A GLANCE</b>
 Multiple agents running? See all pending approvals across sessions in one list. Review and approve file edits, command executions, and tool calls without switching context.
 
 <b>MOBILE-OPTIMIZED UI</b>
-Built for touch. Answer agent questions, approve tools, and provide feedback through a UI designed for mobile — not a shrunken desktop experience.
+Built for touch. Answer agent questions, approve tools, and provide feedback through a UI designed for mobile — not a shrunken desktop terminal.
 
 <b>RICH PROMPTS</b>
 Write with Markdown formatting and auto-completing bullet lists. Attach images from your clipboard or photo gallery to give visual context to your agent.
@@ -45,7 +45,7 @@ Your code and conversations stay on your own server. No telemetry, no tracking. 
 That's it — you're ready to go in under 5 minutes.
 
 <b>REQUIREMENTS</b>
-• A Mac or Linux machine with Codex or Claude Code CLI installed
+• A Mac or Linux machine with OpenAI Codex or Claude Code CLI installed
 • Network connectivity between your phone and the server (local network or Tailscale recommended)
 
 <b>SOURCE CODE</b>

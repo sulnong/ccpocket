@@ -1,7 +1,8 @@
 # CC Pocket
 
 CC Pocket is a mobile and desktop client for Codex and Claude coding-agent sessions.
-Run the agents on your own Mac or Linux machine, then start sessions, approve actions,
+Use it as a Codex mobile client when you want to control Codex from your phone:
+run the agents on your own Mac or Linux machine, then start sessions, approve actions,
 answer questions, and review diffs from iPhone, iPad, Android, or the native macOS app.
 
 [日本語版 README](README.ja.md) | [简体中文版 README](README.zh-CN.md) | [한국어 README](README.ko.md)
@@ -30,9 +31,11 @@ npx @ccpocket/bridge@latest
 | **Android** | <a href="https://play.google.com/store/apps/details?id=com.k9i.ccpocket"><img height="40" alt="Get it on Google Play" src="docs/images/google-play-badge-en.svg" /></a> |
 | **macOS** | Download the latest `.dmg` from [GitHub Releases](https://github.com/K9i-0/ccpocket/releases?q=macos). Look for releases tagged `macos/v*`. |
 
+New to mobile coding agents? See [How to run Codex from iPhone or Android](https://k9i-0.github.io/ccpocket/how-to-run-codex-from-iphone-android/).
+
 ## What You Can Do
 
-- **Run agent sessions from anywhere**: start, resume, and monitor Codex or Claude sessions from phone, tablet, or Mac.
+- **Control Codex from your phone**: start, resume, and monitor Codex or Claude sessions from phone, tablet, or Mac.
 - **Stay in the approval loop**: approve commands, file edits, MCP requests, and agent questions without returning to your keyboard.
 - **Review changes before they land**: inspect files, browse git diffs, preview image diffs, stage or revert files, and generate commit messages.
 - **Write rich prompts on mobile**: use Markdown, completions, voice input, and image attachments.
