@@ -273,6 +273,56 @@ void main() {
       expect(find.text(extraProject), findsOneWidget);
     });
 
+    testWidgets(
+      'additional writable root suggestions do not auto-open keyboard',
+      (tester) async {
+        const extraProject = '/Users/me/Workspace/codex';
+        SharedPreferences.setMockInitialValues({
+          _additionalWritableRootHistoryKey: [extraProject],
+        });
+        _enlargeViewport(tester);
+        await tester.pumpWidget(
+          _wrap(
+            Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  showNewSessionSheet(
+                    context: context,
+                    recentProjects: [
+                      (path: '/Users/me/Workspace/main', name: 'main'),
+                    ],
+                    initialParams: NewSessionParams(
+                      projectPath: '/Users/me/Workspace/main',
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+
+        final addButton = find.byKey(
+          const ValueKey('additional_writable_root_add_button'),
+        );
+        await tester.ensureVisible(addButton);
+        await tester.tap(addButton);
+        await tester.pumpAndSettle();
+
+        final input = tester.widget<TextField>(
+          find.byKey(const ValueKey('additional_writable_root_field')),
+        );
+        expect(input.autofocus, isFalse);
+        expect(
+          find.byKey(const ValueKey('additional_writable_root_scroll')),
+          findsOneWidget,
+        );
+      },
+    );
+
     testWidgets('Codex profile picker stays hidden when no profiles exist', (
       tester,
     ) async {

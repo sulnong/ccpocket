@@ -1820,81 +1820,114 @@ class _AddWritableRootSheet extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l.addDirectory,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l.additionalWritableRootsTooltip,
-              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const ValueKey('additional_writable_root_field'),
-              controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: l.directoryPath,
-                hintText: '/Users/me/Workspace/other-project',
-                border: const OutlineInputBorder(),
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                fit: FlexFit.loose,
+                child: SingleChildScrollView(
+                  key: const ValueKey('additional_writable_root_scroll'),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.addDirectory,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l.additionalWritableRootsTooltip,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        key: const ValueKey('additional_writable_root_field'),
+                        controller: controller,
+                        autofocus: suggestions.isEmpty,
+                        decoration: InputDecoration(
+                          labelText: l.directoryPath,
+                          hintText: '/Users/me/Workspace/other-project',
+                          border: const OutlineInputBorder(),
+                        ),
+                        onSubmitted: (value) {
+                          final trimmed = value.trim();
+                          if (trimmed.isNotEmpty) {
+                            Navigator.pop(context, trimmed);
+                          }
+                        },
+                      ),
+                      if (suggestions.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          l.additionalWritableRootsSuggestions,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final suggestion in suggestions)
+                              ActionChip(
+                                key: ValueKey(
+                                  'additional_writable_root_suggestion_${suggestion.hashCode}',
+                                ),
+                                label: Text(shortenPath(suggestion)),
+                                tooltip: suggestion,
+                                onPressed: () {
+                                  Navigator.pop(context, suggestion);
+                                },
+                              ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-              onSubmitted: (value) {
-                final trimmed = value.trim();
-                if (trimmed.isNotEmpty) Navigator.pop(context, trimmed);
-              },
-            ),
-            if (suggestions.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                l.additionalWritableRootsSuggestions,
-                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  for (final suggestion in suggestions)
-                    ActionChip(
-                      label: Text(shortenPath(suggestion)),
-                      tooltip: suggestion,
-                      onPressed: () => Navigator.pop(context, suggestion),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(l.cancel),
+                  ),
+                  const Spacer(),
+                  FilledButton.icon(
+                    key: const ValueKey(
+                      'additional_writable_root_submit_button',
                     ),
+                    onPressed: () {
+                      final trimmed = controller.text.trim();
+                      if (trimmed.isNotEmpty) Navigator.pop(context, trimmed);
+                    },
+                    icon: const Icon(Icons.add),
+                    label: Text(l.add),
+                  ),
                 ],
               ),
             ],
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l.cancel),
-                ),
-                const Spacer(),
-                FilledButton.icon(
-                  key: const ValueKey('additional_writable_root_submit_button'),
-                  onPressed: () {
-                    final trimmed = controller.text.trim();
-                    if (trimmed.isNotEmpty) Navigator.pop(context, trimmed);
-                  },
-                  icon: const Icon(Icons.add),
-                  label: Text(l.add),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
