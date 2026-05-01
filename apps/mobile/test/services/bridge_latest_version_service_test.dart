@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ccpocket/services/bridge_latest_version_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -30,6 +32,24 @@ void main() {
       expect(await service.fetchLatestVersion(), '1.2.3');
       expect(await service.fetchLatestVersion(), '1.2.3');
 
+      expect(calls, 1);
+    });
+
+    test('shares in-flight latest version requests', () async {
+      var calls = 0;
+      final completer = Completer<http.Response>();
+      final service = BridgeLatestVersionService(
+        httpClient: MockClient((_) {
+          calls++;
+          return completer.future;
+        }),
+      );
+
+      final first = service.fetchLatestVersion();
+      final second = service.fetchLatestVersion();
+      completer.complete(http.Response('{"version":"1.2.3"}', 200));
+
+      expect(await Future.wait([first, second]), ['1.2.3', '1.2.3']);
       expect(calls, 1);
     });
 

@@ -149,6 +149,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     unawaited(_loadPlatformEnvironment());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        context.read<MachineManagerCubit>().refreshLatestBridgeVersionIfStale(),
+      );
+    });
   }
 
   Future<void> _loadPlatformEnvironment() async {

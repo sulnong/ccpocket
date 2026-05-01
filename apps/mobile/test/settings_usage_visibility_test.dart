@@ -285,6 +285,23 @@ Future<Widget> _buildScreen({
   );
 }
 
+BridgeLatestVersionService _recommendedLatestVersionService() {
+  return BridgeLatestVersionService(
+    httpClient: MockClient(
+      (_) async =>
+          http.Response('{"version":"$recommendedBridgeVersion"}', 200),
+    ),
+  );
+}
+
+MachineManagerCubit _createMachineManagerCubit(MachineManagerService service) {
+  return MachineManagerCubit(
+    service,
+    null,
+    latestVersionService: _recommendedLatestVersionService(),
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const platformEnvironmentChannel = MethodChannel(
@@ -328,9 +345,8 @@ void main() {
             ),
           ),
         ]);
-        final machineManagerCubit = MachineManagerCubit(
+        final machineManagerCubit = _createMachineManagerCubit(
           machineManagerService,
-          null,
         );
         final bridge = _FakeBridgeService(
           connected: true,
@@ -454,7 +470,7 @@ void main() {
           versionInfo: BridgeVersionInfo(version: recommendedBridgeVersion),
         ),
       ]);
-      final latestCubit = MachineManagerCubit(latestService, null);
+      final latestCubit = _createMachineManagerCubit(latestService);
       final latestBridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://100.64.0.1:8765',
@@ -497,9 +513,8 @@ void main() {
           versionInfo: BridgeVersionInfo(version: recommendedBridgeVersion),
         ),
       ]);
-      final latestMissingSshCubit = MachineManagerCubit(
+      final latestMissingSshCubit = _createMachineManagerCubit(
         latestMissingSshService,
-        null,
       );
       final latestMissingSshBridge = _FakeBridgeService(
         connected: true,
@@ -553,7 +568,7 @@ void main() {
           ),
         ),
       ]);
-      final missingSshCubit = MachineManagerCubit(missingSshService, null);
+      final missingSshCubit = _createMachineManagerCubit(missingSshService);
       final missingSshBridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://100.64.0.1:8765',
@@ -603,7 +618,7 @@ void main() {
           activeMachineId: null,
         );
         final manager = MachineManagerService(prefs, _FakeSecureStorage());
-        final machineManagerCubit = MachineManagerCubit(manager, null);
+        final machineManagerCubit = _createMachineManagerCubit(manager);
         final bridge = _FakeBridgeService(
           connected: false,
           cachedUsage: const UsageResultMessage(
@@ -646,7 +661,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final settingsCubit = _SeededSettingsCubit(prefs, activeMachineId: null);
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(connected: false);
 
       await tester.pumpWidget(
@@ -693,7 +708,7 @@ void main() {
         activeMachineId: 'machine-1',
       );
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://127.0.0.1:8765',
@@ -751,7 +766,7 @@ void main() {
         activeMachineId: 'machine-1',
       );
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://127.0.0.1:8765',
@@ -830,7 +845,7 @@ void main() {
         activeMachineId: 'machine-1',
       );
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://127.0.0.1:8765',
@@ -884,7 +899,7 @@ void main() {
         activeMachineId: 'machine-1',
       );
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://127.0.0.1:8765',
@@ -936,7 +951,7 @@ void main() {
         activeMachineId: 'machine-1',
       );
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://127.0.0.1:8765',
@@ -994,7 +1009,7 @@ void main() {
         activeMachineId: 'machine-1',
       );
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(
         connected: true,
         fakeLastUrl: 'ws://127.0.0.1:8765',
@@ -1051,7 +1066,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final settingsCubit = _SeededSettingsCubit(prefs, activeMachineId: null);
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(connected: false);
 
       await tester.pumpWidget(
@@ -1091,7 +1106,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final settingsCubit = _SeededSettingsCubit(prefs, activeMachineId: null);
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(connected: false);
 
       await tester.pumpWidget(
@@ -1141,7 +1156,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final settingsCubit = _SeededSettingsCubit(prefs, activeMachineId: null);
       final manager = MachineManagerService(prefs, _FakeSecureStorage());
-      final machineManagerCubit = MachineManagerCubit(manager, null);
+      final machineManagerCubit = _createMachineManagerCubit(manager);
       final bridge = _FakeBridgeService(connected: false);
 
       await tester.pumpWidget(

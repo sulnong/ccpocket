@@ -60,6 +60,10 @@ class MachineManagerCubit extends Cubit<MachineManagerState> {
   static const _defaultUpdateHealthTimeout = Duration(seconds: 30);
   static const _defaultHealthRetryDelay = Duration(seconds: 1);
   static const _defaultPostStartHealthRequestTimeout = Duration(seconds: 2);
+  static const _latestBridgeVersionAutoRefreshMinInterval =
+      BridgeLatestVersionService.cacheDuration;
+
+  DateTime? _lastLatestBridgeVersionRefreshAttemptAt;
 
   MachineManagerCubit(
     this._service,
@@ -117,6 +121,7 @@ class MachineManagerCubit extends Cubit<MachineManagerState> {
 
   /// Refresh the latest Bridge version published on npm.
   Future<void> refreshLatestBridgeVersion({bool forceRefresh = false}) async {
+    _lastLatestBridgeVersionRefreshAttemptAt = DateTime.now();
     emit(
       state.copyWith(
         isCheckingLatestBridgeVersion: true,
@@ -142,6 +147,28 @@ class MachineManagerCubit extends Cubit<MachineManagerState> {
         ),
       );
     }
+  }
+
+  /// Refresh npm latest version when the cached value is stale.
+  ///
+  /// This is intended for automatic UI-triggered checks, such as opening
+  /// settings or pressing connect. Manual retry should use
+  /// [refreshLatestBridgeVersion] with forceRefresh.
+  Future<void> refreshLatestBridgeVersionIfStale() async {
+    if (state.isCheckingLatestBridgeVersion) return;
+    if (_latestVersionService.hasFreshCache &&
+        state.latestBridgeVersion != null) {
+      return;
+    }
+
+    final lastAttempt = _lastLatestBridgeVersionRefreshAttemptAt;
+    if (lastAttempt != null &&
+        DateTime.now().difference(lastAttempt) <
+            _latestBridgeVersionAutoRefreshMinInterval) {
+      return;
+    }
+
+    await refreshLatestBridgeVersion();
   }
 
   /// Version used to decide whether an update should be offered.

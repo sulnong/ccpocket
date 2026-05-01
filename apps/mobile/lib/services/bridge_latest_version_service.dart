@@ -19,6 +19,15 @@ class BridgeLatestVersionService {
   final bool _ownsClient;
   String? _cachedVersion;
   DateTime? _cachedAt;
+  Future<String>? _inFlightFetch;
+
+  bool get hasFreshCache {
+    final cachedVersion = _cachedVersion;
+    final cachedAt = _cachedAt;
+    return cachedVersion != null &&
+        cachedAt != null &&
+        DateTime.now().difference(cachedAt) < cacheDuration;
+  }
 
   Future<String> fetchLatestVersion({bool forceRefresh = false}) async {
     final cachedVersion = _cachedVersion;
@@ -29,7 +38,22 @@ class BridgeLatestVersionService {
         DateTime.now().difference(cachedAt) < cacheDuration) {
       return cachedVersion;
     }
+    if (!forceRefresh && _inFlightFetch != null) {
+      return _inFlightFetch!;
+    }
 
+    final fetch = _fetchLatestVersion();
+    _inFlightFetch = fetch;
+    try {
+      return await fetch;
+    } finally {
+      if (identical(_inFlightFetch, fetch)) {
+        _inFlightFetch = null;
+      }
+    }
+  }
+
+  Future<String> _fetchLatestVersion() async {
     final response = await _httpClient
         .get(latestPackageUri)
         .timeout(requestTimeout);

@@ -365,6 +365,11 @@ class _SessionListScreenState extends State<SessionListScreen>
       url = 'ws://$url';
     }
 
+    final machineManagerCubit = context.read<MachineManagerCubit?>();
+    if (machineManagerCubit != null) {
+      unawaited(machineManagerCubit.refreshLatestBridgeVersionIfStale());
+    }
+
     // Health check before connecting
     final health = await BridgeService.checkHealth(url);
     if (health == null && mounted) {
@@ -375,7 +380,6 @@ class _SessionListScreenState extends State<SessionListScreen>
     if (!mounted) return;
     // Auto-save to Machines on successful health check (or user choosing to connect)
     final trimmedApiKey = apiKey?.trim() ?? '';
-    final machineManagerCubit = context.read<MachineManagerCubit?>();
     if (machineManagerCubit != null) {
       // Parse host and port from URL
       final uri = Uri.tryParse(
@@ -576,6 +580,10 @@ class _SessionListScreenState extends State<SessionListScreen>
 
   void _refresh() {
     context.read<SessionListCubit>().refresh();
+    final machineManagerCubit = context.read<MachineManagerCubit?>();
+    if (machineManagerCubit != null) {
+      unawaited(machineManagerCubit.refreshLatestBridgeVersionIfStale());
+    }
   }
 
   void _showNewSessionDialog() async {
@@ -1928,6 +1936,7 @@ class _SessionListScreenState extends State<SessionListScreen>
 
   void _connectToMachine(MachineWithStatus m) async {
     final cubit = context.read<MachineManagerCubit>();
+    unawaited(cubit.refreshLatestBridgeVersionIfStale());
     final wsUrl = await cubit.buildWsUrl(m.machine.id);
     final apiKey = await cubit.getApiKey(m.machine.id);
 
