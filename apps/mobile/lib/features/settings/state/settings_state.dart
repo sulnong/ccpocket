@@ -87,8 +87,11 @@ abstract class SettingsState with _$SettingsState {
     /// Whether Codex usage limits are shown as remaining quota or used quota.
     @Default(UsageDisplayMode.remaining) UsageDisplayMode usageDisplayMode,
 
-    /// Whether new sessions should be automatically named after the first turn.
-    @Default(true) bool autoRenameSessions,
+    /// Whether new Codex sessions should be automatically named after the first turn.
+    @Default(true) bool autoRenameCodexSessions,
+
+    /// Whether new Claude sessions should be automatically named after the first turn.
+    @Default(false) bool autoRenameClaudeSessions,
   }) = _SettingsState;
 
   /// Whether push notifications are enabled for the currently connected machine.

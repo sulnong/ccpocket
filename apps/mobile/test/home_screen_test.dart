@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ccpocket/models/messages.dart';
 import 'package:ccpocket/features/session_list/session_list_screen.dart';
+import 'package:ccpocket/features/settings/state/settings_state.dart';
 import 'package:ccpocket/widgets/new_session_sheet.dart';
 
 RecentSession _session({
@@ -307,6 +308,38 @@ void main() {
   });
 
   group('session start defaults', () {
+    test('selects provider-specific auto rename settings', () {
+      const settings = SettingsState(
+        autoRenameCodexSessions: true,
+        autoRenameClaudeSessions: false,
+      );
+
+      expect(autoRenameForProvider(settings, Provider.codex), isTrue);
+      expect(autoRenameForProvider(settings, Provider.claude), isFalse);
+
+      final codexJson =
+          jsonDecode(
+                ClientMessage.start(
+                  '/tmp/project',
+                  provider: Provider.codex.value,
+                  autoRename: autoRenameForProvider(settings, Provider.codex),
+                ).toJson(),
+              )
+              as Map<String, dynamic>;
+      final claudeJson =
+          jsonDecode(
+                ClientMessage.start(
+                  '/tmp/project',
+                  provider: Provider.claude.value,
+                  autoRename: autoRenameForProvider(settings, Provider.claude),
+                ).toJson(),
+              )
+              as Map<String, dynamic>;
+
+      expect(codexJson['autoRename'], isTrue);
+      expect(claudeJson['autoRename'], isFalse);
+    });
+
     test('serializes and restores codex defaults', () {
       final params = NewSessionParams(
         projectPath: '/tmp/project-a',

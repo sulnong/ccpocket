@@ -28,6 +28,7 @@ import '../../widgets/adaptive_context_menu.dart';
 import '../../widgets/new_session_sheet.dart';
 import '../../widgets/rename_session_dialog.dart';
 import '../settings/state/settings_cubit.dart';
+import '../settings/state/settings_state.dart';
 import 'state/session_list_cubit.dart';
 import 'state/session_list_state.dart';
 import 'widgets/connect_form.dart';
@@ -77,6 +78,14 @@ String shortenPath(String path) {
     return '~${path.substring(home.length)}';
   }
   return path;
+}
+
+/// Provider-specific auto rename setting for new sessions.
+bool autoRenameForProvider(SettingsState settings, Provider provider) {
+  return switch (provider) {
+    Provider.codex => settings.autoRenameCodexSessions,
+    Provider.claude => settings.autoRenameClaudeSessions,
+  };
 }
 
 /// Quote a shell argument so it can be pasted safely into POSIX shells.
@@ -688,7 +697,7 @@ class _SessionListScreenState extends State<SessionListScreen>
         additionalWritableRoots: result.provider == Provider.codex
             ? result.additionalWritableRoots
             : null,
-        autoRename: settings.autoRenameSessions,
+        autoRename: autoRenameForProvider(settings, result.provider),
       ),
     );
     if (isOffline) {

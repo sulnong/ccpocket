@@ -1534,11 +1534,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose which AI tools appear for new sessions and change their order.';
 
   @override
-  String get autoRenameSessions => 'Auto Rename';
+  String get autoRenameCodexSessions => 'Auto Rename (Codex)';
 
   @override
-  String get autoRenameSessionsSubtitle =>
-      'Name new sessions automatically after the first agent response';
+  String get autoRenameCodexSessionsSubtitle =>
+      'Name Codex sessions automatically after the first agent response';
+
+  @override
+  String get autoRenameClaudeSessions => 'Auto Rename (Claude)';
+
+  @override
+  String get autoRenameClaudeSessionsSubtitle =>
+      'Name Claude sessions automatically after the first agent response. Uses an additional Claude request when API key billing is active.';
 
   @override
   String get newSessionTabCodex => 'Codex';

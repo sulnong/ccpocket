@@ -1460,10 +1460,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsNewSessionTabsDescription => '可修改新建会话时显示的 AI 工具选项及其排列顺序。';
 
   @override
-  String get autoRenameSessions => '自动 Rename';
+  String get autoRenameCodexSessions => '自动 Rename (Codex)';
 
   @override
-  String get autoRenameSessionsSubtitle => '在首次智能体回复后自动为新建会话命名';
+  String get autoRenameCodexSessionsSubtitle => '在首次智能体回复后自动为 Codex 会话命名';
+
+  @override
+  String get autoRenameClaudeSessions => '自动 Rename (Claude)';
+
+  @override
+  String get autoRenameClaudeSessionsSubtitle =>
+      '在首次智能体回复后自动为 Claude 会话命名。使用 API Key 计费时会产生额外按量费用。';
 
   @override
   String get newSessionTabCodex => 'Codex';

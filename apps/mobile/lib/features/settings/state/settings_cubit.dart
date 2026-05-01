@@ -49,7 +49,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const _keyTerminalApp = 'settings_terminal_app';
   static const _keyNewSessionTabs = 'settings_new_session_tabs';
   static const _keyUsageDisplayMode = 'settings_usage_display_mode';
-  static const _keyAutoRenameSessions = 'autoRenameSessions';
+  static const _keyAutoRenameCodexSessions = 'autoRenameCodexSessions';
+  static const _keyAutoRenameClaudeSessions = 'autoRenameClaudeSessions';
   static const _keyTextScale = 'settings_text_scale';
   static const minTextScale = 0.8;
   static const maxTextScale = 1.0;
@@ -183,7 +184,10 @@ class SettingsCubit extends Cubit<SettingsState> {
     final usageDisplayMode = _usageDisplayModeFromRaw(
       prefs.getString(_keyUsageDisplayMode),
     );
-    final autoRenameSessions = prefs.getBool(_keyAutoRenameSessions) ?? true;
+    final autoRenameCodexSessions =
+        prefs.getBool(_keyAutoRenameCodexSessions) ?? true;
+    final autoRenameClaudeSessions =
+        prefs.getBool(_keyAutoRenameClaudeSessions) ?? false;
 
     // Load terminal app config
     var terminalApp = TerminalAppConfig.empty;
@@ -224,7 +228,8 @@ class SettingsCubit extends Cubit<SettingsState> {
       terminalApp: terminalApp,
       newSessionTabs: newSessionTabs,
       usageDisplayMode: usageDisplayMode,
-      autoRenameSessions: autoRenameSessions,
+      autoRenameCodexSessions: autoRenameCodexSessions,
+      autoRenameClaudeSessions: autoRenameClaudeSessions,
     );
   }
 
@@ -351,9 +356,14 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(usageDisplayMode: mode));
   }
 
-  void setAutoRenameSessions(bool enabled) {
-    _prefs.setBool(_keyAutoRenameSessions, enabled);
-    emit(state.copyWith(autoRenameSessions: enabled));
+  void setAutoRenameCodexSessions(bool enabled) {
+    _prefs.setBool(_keyAutoRenameCodexSessions, enabled);
+    emit(state.copyWith(autoRenameCodexSessions: enabled));
+  }
+
+  void setAutoRenameClaudeSessions(bool enabled) {
+    _prefs.setBool(_keyAutoRenameClaudeSessions, enabled);
+    emit(state.copyWith(autoRenameClaudeSessions: enabled));
   }
 
   void toggleUsageDisplayMode() {

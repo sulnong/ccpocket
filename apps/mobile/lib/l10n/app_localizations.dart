@@ -2832,17 +2832,29 @@ abstract class AppLocalizations {
   /// **'新規セッションで表示する AI ツールの選択肢と並び順を変更できます。'**
   String get settingsNewSessionTabsDescription;
 
-  /// No description provided for @autoRenameSessions.
+  /// No description provided for @autoRenameCodexSessions.
   ///
   /// In ja, this message translates to:
-  /// **'自動Rename'**
-  String get autoRenameSessions;
+  /// **'自動Rename (Codex)'**
+  String get autoRenameCodexSessions;
 
-  /// No description provided for @autoRenameSessionsSubtitle.
+  /// No description provided for @autoRenameCodexSessionsSubtitle.
   ///
   /// In ja, this message translates to:
-  /// **'最初のエージェント応答後に新規セッションへ自動で名前を付ける'**
-  String get autoRenameSessionsSubtitle;
+  /// **'最初のエージェント応答後に Codex セッションへ自動で名前を付ける'**
+  String get autoRenameCodexSessionsSubtitle;
+
+  /// No description provided for @autoRenameClaudeSessions.
+  ///
+  /// In ja, this message translates to:
+  /// **'自動Rename (Claude)'**
+  String get autoRenameClaudeSessions;
+
+  /// No description provided for @autoRenameClaudeSessionsSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'最初のエージェント応答後に Claude セッションへ自動で名前を付ける。API Key 利用時は追加の従量課金が発生します。'**
+  String get autoRenameClaudeSessionsSubtitle;
 
   /// No description provided for @newSessionTabCodex.
   ///

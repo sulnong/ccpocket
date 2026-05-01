@@ -42,22 +42,27 @@ void main() {
       await cubit.close();
     });
 
-    test('persists auto rename setting', () async {
+    test('persists provider-specific auto rename settings', () async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       final cubit = SettingsCubit(prefs);
 
-      expect(cubit.state.autoRenameSessions, isTrue);
+      expect(cubit.state.autoRenameCodexSessions, isTrue);
+      expect(cubit.state.autoRenameClaudeSessions, isFalse);
 
-      cubit.setAutoRenameSessions(false);
+      cubit.setAutoRenameCodexSessions(false);
+      cubit.setAutoRenameClaudeSessions(true);
 
-      expect(cubit.state.autoRenameSessions, isFalse);
-      expect(prefs.getBool('autoRenameSessions'), isFalse);
+      expect(cubit.state.autoRenameCodexSessions, isFalse);
+      expect(cubit.state.autoRenameClaudeSessions, isTrue);
+      expect(prefs.getBool('autoRenameCodexSessions'), isFalse);
+      expect(prefs.getBool('autoRenameClaudeSessions'), isTrue);
 
       await cubit.close();
 
       final restored = SettingsCubit(prefs);
-      expect(restored.state.autoRenameSessions, isFalse);
+      expect(restored.state.autoRenameCodexSessions, isFalse);
+      expect(restored.state.autoRenameClaudeSessions, isTrue);
 
       await restored.close();
     });

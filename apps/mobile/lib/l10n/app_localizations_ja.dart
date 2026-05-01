@@ -1476,10 +1476,18 @@ class AppLocalizationsJa extends AppLocalizations {
       '新規セッションで表示する AI ツールの選択肢と並び順を変更できます。';
 
   @override
-  String get autoRenameSessions => '自動Rename';
+  String get autoRenameCodexSessions => '自動Rename (Codex)';
 
   @override
-  String get autoRenameSessionsSubtitle => '最初のエージェント応答後に新規セッションへ自動で名前を付ける';
+  String get autoRenameCodexSessionsSubtitle =>
+      '最初のエージェント応答後に Codex セッションへ自動で名前を付ける';
+
+  @override
+  String get autoRenameClaudeSessions => '自動Rename (Claude)';
+
+  @override
+  String get autoRenameClaudeSessionsSubtitle =>
+      '最初のエージェント応答後に Claude セッションへ自動で名前を付ける。API Key 利用時は追加の従量課金が発生します。';
 
   @override
   String get newSessionTabCodex => 'Codex';
