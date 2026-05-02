@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.86.1] - 2026-05-02
+
+### Changed
+- Refresh store release notes and screenshots for the latest mobile release.
+
+### Fixed
+- Localize queued message and reconnect copy across supported languages.
+- Merge prompt history entries that share the same display text.
+- Expand the workspace resize handle hit target.
+
 ## [1.86.0] - 2026-05-02
 
 ### Added
