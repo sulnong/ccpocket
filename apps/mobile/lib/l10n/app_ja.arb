@@ -25,6 +25,10 @@
   "gallery": "ギャラリー",
   "git": "Git",
   "explorer": "Explorer",
+  "gitUnavailableTip": "Git未検出 — Git機能は利用できません",
+  "gitUnavailableTitle": "Gitを利用できません",
+  "gitUnavailableHint": "このプロジェクトではGit機能を利用できません",
+  "autoModeFallbackDefaultTip": "Auto mode はこの環境で使えないため Default に切り替えました",
   "galleryWithCount": "ギャラリー ({count})",
   "@galleryWithCount": {
     "placeholders": {

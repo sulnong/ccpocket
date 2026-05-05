@@ -80,6 +80,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get explorer => 'Explorer';
 
   @override
+  String get gitUnavailableTip => 'Git未検出 — Git機能は利用できません';
+
+  @override
+  String get gitUnavailableTitle => 'Gitを利用できません';
+
+  @override
+  String get gitUnavailableHint => 'このプロジェクトではGit機能を利用できません';
+
+  @override
+  String get autoModeFallbackDefaultTip =>
+      'Auto mode はこの環境で使えないため Default に切り替えました';
+
+  @override
   String galleryWithCount(int count) {
     return 'ギャラリー ($count)';
   }

@@ -60,7 +60,7 @@ import {
   unstageHunks,
   gitCommit,
   gitPush,
-  listGitFiles,
+  listProjectFiles,
   listBranches,
   createBranch,
   checkoutBranch,
@@ -3710,24 +3710,21 @@ export class BridgeWebSocketServer {
           this.send(ws, this.buildPathNotAllowedError(msg.projectPath));
           break;
         }
-        try {
-          const files = listGitFiles(msg.projectPath);
-          this.send(ws, { type: "file_list", files } as Record<
-            string,
-            unknown
-          >);
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          if (/not a git repository/i.test(message)) {
-            // Non-git project: silently return empty list (file listing is auxiliary)
-            this.send(ws, { type: "file_list", files: [] });
-          } else {
+        void (async () => {
+          try {
+            const files = await listProjectFiles(msg.projectPath);
+            this.send(ws, { type: "file_list", files } as Record<
+              string,
+              unknown
+            >);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
             this.send(ws, {
               type: "error",
               message: `Failed to list files: ${message}`,
             });
           }
-        }
+        })();
         break;
       }
 

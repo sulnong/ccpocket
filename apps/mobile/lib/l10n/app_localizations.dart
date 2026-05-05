@@ -240,6 +240,30 @@ abstract class AppLocalizations {
   /// **'Explorer'**
   String get explorer;
 
+  /// No description provided for @gitUnavailableTip.
+  ///
+  /// In ja, this message translates to:
+  /// **'Git未検出 — Git機能は利用できません'**
+  String get gitUnavailableTip;
+
+  /// No description provided for @gitUnavailableTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'Gitを利用できません'**
+  String get gitUnavailableTitle;
+
+  /// No description provided for @gitUnavailableHint.
+  ///
+  /// In ja, this message translates to:
+  /// **'このプロジェクトではGit機能を利用できません'**
+  String get gitUnavailableHint;
+
+  /// No description provided for @autoModeFallbackDefaultTip.
+  ///
+  /// In ja, this message translates to:
+  /// **'Auto mode はこの環境で使えないため Default に切り替えました'**
+  String get autoModeFallbackDefaultTip;
+
   /// No description provided for @galleryWithCount.
   ///
   /// In ja, this message translates to:

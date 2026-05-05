@@ -80,6 +80,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get explorer => 'Explorer';
 
   @override
+  String get gitUnavailableTip => 'Git을 찾을 수 없음 — Git 기능을 사용할 수 없습니다';
+
+  @override
+  String get gitUnavailableTitle => 'Git을 사용할 수 없음';
+
+  @override
+  String get gitUnavailableHint => '이 프로젝트에서는 Git 기능을 사용할 수 없습니다';
+
+  @override
+  String get autoModeFallbackDefaultTip =>
+      '이 환경에서는 Auto mode를 사용할 수 없어 Default mode로 전환했습니다';
+
+  @override
   String galleryWithCount(int count) {
     return '갤러리 ($count)';
   }

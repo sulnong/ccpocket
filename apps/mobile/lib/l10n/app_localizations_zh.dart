@@ -80,6 +80,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get explorer => '资源管理器';
 
   @override
+  String get gitUnavailableTip => '未检测到 Git — Git 功能不可用';
+
+  @override
+  String get gitUnavailableTitle => 'Git 不可用';
+
+  @override
+  String get gitUnavailableHint => '此项目无法使用 Git 功能';
+
+  @override
+  String get autoModeFallbackDefaultTip =>
+      '当前环境不支持 Auto mode，已切换为 Default mode';
+
+  @override
   String galleryWithCount(int count) {
     return '图库 ($count)';
   }

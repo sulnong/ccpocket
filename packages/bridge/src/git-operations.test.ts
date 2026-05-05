@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { randomUUID } from "node:crypto";
@@ -18,6 +19,8 @@ import {
   gitCommit,
   getStagedDiff,
   listGitFiles,
+  listFileSystemFiles,
+  listProjectFiles,
   listBranches,
   createBranch,
   checkoutBranch,
@@ -39,6 +42,12 @@ function createTempRepo(): string {
   writeFileSync(join(dir, "initial.txt"), "initial\n");
   execFileSync("git", ["add", "."], { cwd: dir });
   execFileSync("git", ["commit", "-m", "initial"], { cwd: dir });
+  return dir;
+}
+
+function createTempProject(): string {
+  const dir = join(tmpdir(), `git-ops-fs-test-${randomUUID().slice(0, 8)}`);
+  mkdirSync(dir, { recursive: true });
   return dir;
 }
 
@@ -617,6 +626,102 @@ describe("listGitFiles", () => {
     const files = listGitFiles(repo);
 
     expect(files).toContain("docs/line\nbreak.md");
+  });
+});
+
+describe("listFileSystemFiles", () => {
+  let project: string;
+
+  beforeEach(() => {
+    project = createTempProject();
+  });
+
+  afterEach(() => {
+    rmSync(project, { recursive: true, force: true });
+  });
+
+  it("returns relative files for non-git project directories", async () => {
+    mkdirSync(join(project, "notes"), { recursive: true });
+    mkdirSync(join(project, ".obsidian"), { recursive: true });
+    writeFileSync(join(project, "README.md"), "hello\n");
+    writeFileSync(join(project, "notes", "today.md"), "note\n");
+    writeFileSync(join(project, ".obsidian", "app.json"), "{}\n");
+
+    await expect(listFileSystemFiles(project)).resolves.toEqual([
+      ".obsidian/app.json",
+      "notes/today.md",
+      "README.md",
+    ]);
+  });
+
+  it("skips generated and cache directories", async () => {
+    mkdirSync(join(project, "notes"), { recursive: true });
+    mkdirSync(join(project, "node_modules", "pkg"), { recursive: true });
+    mkdirSync(join(project, "build"), { recursive: true });
+    mkdirSync(join(project, "dist"), { recursive: true });
+    mkdirSync(join(project, ".git", "objects"), { recursive: true });
+    writeFileSync(join(project, "notes", "today.md"), "note\n");
+    writeFileSync(join(project, "node_modules", "pkg", "index.js"), "pkg\n");
+    writeFileSync(join(project, "build", "app.js"), "build\n");
+    writeFileSync(join(project, "dist", "app.js"), "dist\n");
+    writeFileSync(join(project, ".git", "config"), "git\n");
+
+    await expect(listFileSystemFiles(project)).resolves.toEqual([
+      "notes/today.md",
+    ]);
+  });
+
+  it("does not follow symbolic links", async () => {
+    mkdirSync(join(project, "target"), { recursive: true });
+    writeFileSync(join(project, "target", "secret.md"), "secret\n");
+    symlinkSync("target", join(project, "linked-target"), "dir");
+
+    await expect(listFileSystemFiles(project)).resolves.toEqual([
+      "target/secret.md",
+    ]);
+  });
+
+  it("honors max depth and max files", async () => {
+    mkdirSync(join(project, "a", "b", "c"), { recursive: true });
+    writeFileSync(join(project, "a", "one.md"), "1\n");
+    writeFileSync(join(project, "a", "two.md"), "2\n");
+    writeFileSync(join(project, "a", "b", "deep.md"), "deep\n");
+    writeFileSync(join(project, "a", "b", "c", "too-deep.md"), "deep\n");
+
+    await expect(
+      listFileSystemFiles(project, { maxDepth: 2, maxFiles: 2 }),
+    ).resolves.toEqual(["a/one.md", "a/two.md"]);
+  });
+});
+
+describe("listProjectFiles", () => {
+  let project: string;
+
+  afterEach(() => {
+    if (project) rmSync(project, { recursive: true, force: true });
+  });
+
+  it("falls back to filesystem listing for non-git projects", async () => {
+    project = createTempProject();
+    mkdirSync(join(project, "notes"), { recursive: true });
+    writeFileSync(join(project, "notes", "today.md"), "note\n");
+
+    await expect(listProjectFiles(project)).resolves.toEqual([
+      "notes/today.md",
+    ]);
+  });
+
+  it("uses git listing when the project is a git repository", async () => {
+    project = createTempRepo();
+    writeFileSync(join(project, ".gitignore"), "ignored.log\n");
+    writeFileSync(join(project, "tracked.md"), "tracked\n");
+    writeFileSync(join(project, "ignored.log"), "ignored\n");
+    execFileSync("git", ["add", ".gitignore", "tracked.md"], { cwd: project });
+
+    const files = await listProjectFiles(project);
+
+    expect(files).toContain("tracked.md");
+    expect(files).not.toContain("ignored.log");
   });
 });
 

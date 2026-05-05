@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
-import { realpathSync } from "node:fs";
-import { resolve } from "node:path";
+import { realpathSync, type Dir, type Dirent } from "node:fs";
+import { opendir } from "node:fs/promises";
+import { join, relative, resolve, sep } from "node:path";
 
 // ---- Types ----
 
@@ -41,6 +42,29 @@ export interface GitStatusResult {
   branch?: string;
   remoteError?: string;
 }
+
+export interface FileSystemFileListOptions {
+  maxDepth?: number;
+  maxFiles?: number;
+  excludedDirs?: ReadonlySet<string> | readonly string[];
+}
+
+export const DEFAULT_FILESYSTEM_FILE_LIST_MAX_DEPTH = 8;
+export const DEFAULT_FILESYSTEM_FILE_LIST_MAX_FILES = 5000;
+export const DEFAULT_FILESYSTEM_FILE_LIST_EXCLUDED_DIRS = new Set([
+  ".git",
+  ".hg",
+  ".svn",
+  ".dart_tool",
+  ".next",
+  ".nuxt",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "node_modules",
+  "vendor",
+]);
 
 // ---- Helpers ----
 
@@ -238,6 +262,102 @@ export function listGitFiles(projectPath: string): string[] {
     },
   );
   return output.split("\0").filter(Boolean);
+}
+
+/** Return project files, using Git when available and filesystem fallback otherwise. */
+export async function listProjectFiles(
+  projectPath: string,
+  options: FileSystemFileListOptions = {},
+): Promise<string[]> {
+  try {
+    return listGitFiles(projectPath);
+  } catch (err) {
+    if (!isGitFileListingUnavailable(err)) {
+      throw err;
+    }
+    return listFileSystemFiles(projectPath, options);
+  }
+}
+
+/** Return regular files under a non-Git project directory for explorer views. */
+export async function listFileSystemFiles(
+  projectPath: string,
+  options: FileSystemFileListOptions = {},
+): Promise<string[]> {
+  const root = resolveProject(projectPath);
+  const maxDepth =
+    options.maxDepth ?? DEFAULT_FILESYSTEM_FILE_LIST_MAX_DEPTH;
+  const maxFiles =
+    options.maxFiles ?? DEFAULT_FILESYSTEM_FILE_LIST_MAX_FILES;
+  const excludedDirs = toExcludedDirSet(
+    options.excludedDirs ?? DEFAULT_FILESYSTEM_FILE_LIST_EXCLUDED_DIRS,
+  );
+  const files: string[] = [];
+
+  async function visit(
+    absDir: string,
+    relDir: string,
+    depth: number,
+  ): Promise<void> {
+    if (files.length >= maxFiles || depth >= maxDepth) return;
+
+    let dir: Dir;
+    try {
+      dir = await opendir(absDir);
+    } catch (err) {
+      if (relDir === "") throw err;
+      return;
+    }
+
+    const entries: Dirent[] = [];
+    for await (const entry of dir) {
+      entries.push(entry);
+    }
+
+    entries.sort((a, b) => a.name.localeCompare(b.name));
+
+    for (const entry of entries) {
+      if (files.length >= maxFiles) return;
+      if (entry.name === "." || entry.name === "..") continue;
+
+      const absPath = join(absDir, entry.name);
+      const relPath = relDir ? `${relDir}/${entry.name}` : entry.name;
+
+      if (entry.isSymbolicLink()) {
+        continue;
+      }
+
+      if (entry.isDirectory()) {
+        if (excludedDirs.has(entry.name)) continue;
+        await visit(absPath, relPath, depth + 1);
+        continue;
+      }
+
+      if (entry.isFile()) {
+        files.push(toPosixRelativePath(relative(root, absPath)));
+      }
+    }
+  }
+
+  await visit(root, "", 0);
+  return files.sort((a, b) => a.localeCompare(b));
+}
+
+function isGitFileListingUnavailable(err: unknown): boolean {
+  const error = err as NodeJS.ErrnoException;
+  if (error.code === "ENOENT") return true;
+  const message = err instanceof Error ? err.message : String(err);
+  return /not a git repository/i.test(message);
+}
+
+function toExcludedDirSet(
+  dirs: ReadonlySet<string> | readonly string[],
+): ReadonlySet<string> {
+  return dirs instanceof Set ? dirs : new Set(dirs);
+}
+
+function toPosixRelativePath(path: string): string {
+  return sep === "/" ? path : path.split(sep).join("/");
 }
 
 /** Push to remote. */

@@ -80,6 +80,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get explorer => 'Explorer';
 
   @override
+  String get gitUnavailableTip =>
+      'Git not detected — Git features are unavailable';
+
+  @override
+  String get gitUnavailableTitle => 'Git Not Available';
+
+  @override
+  String get gitUnavailableHint =>
+      'Git features are not available for this project';
+
+  @override
+  String get autoModeFallbackDefaultTip =>
+      'Auto mode is not available in this environment, so Default mode was selected';
+
+  @override
   String galleryWithCount(int count) {
     return 'Gallery ($count)';
   }
