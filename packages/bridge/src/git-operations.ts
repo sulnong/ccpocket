@@ -257,8 +257,21 @@ export function listBranches(projectPath: string): BranchListResult {
   const cwd = resolveProject(projectPath);
   const current = git(["rev-parse", "--abbrev-ref", "HEAD"], cwd);
 
-  const output = git(["branch", "--list", "--format=%(refname:short)"], cwd);
-  const branches = output ? output.split("\n").filter(Boolean) : [];
+  const output = git([
+    "branch",
+    "--list",
+    "--format=%(refname:short)%09%(upstream:short)%09%(upstream:track)",
+  ], cwd);
+  const branchRows = output
+    ? output.split("\n").filter(Boolean).map((line) => {
+        const [branch, upstream = "", track = ""] = line.split("\t");
+        return {
+          branch,
+          remoteStatus: parseBranchRemoteStatus(upstream, track),
+        };
+      })
+    : [];
+  const branches = branchRows.map((row) => row.branch);
 
   // Collect branches checked out by worktrees (+ main repo)
   const checkedOutBranches: string[] = [];
@@ -280,44 +293,29 @@ export function listBranches(projectPath: string): BranchListResult {
   }
 
   const remoteStatusByBranch = Object.fromEntries(
-    branches.map((branch) => [branch, getBranchRemoteStatus(cwd, branch)]),
+    branchRows.map((row) => [row.branch, row.remoteStatus]),
   );
 
   return { current, branches, checkedOutBranches, remoteStatusByBranch };
 }
 
-function getBranchRemoteStatus(
-  cwd: string,
-  branch: string,
+function parseBranchRemoteStatus(
+  upstream: string,
+  track: string,
 ): BranchRemoteStatus {
-  const upstream = execFileSync(
-    "git",
-    ["for-each-ref", "--format=%(upstream:short)", `refs/heads/${branch}`],
-    { cwd, encoding: "utf-8" },
-  ).trim();
-
   if (!upstream) {
     return { ahead: 0, behind: 0, hasUpstream: false };
   }
 
-  let ahead = 0;
-  let behind = 0;
-
-  try {
-    ahead =
-      parseInt(git(["rev-list", "--count", `${upstream}..${branch}`], cwd), 10) || 0;
-  } catch {
-    ahead = 0;
-  }
-
-  try {
-    behind =
-      parseInt(git(["rev-list", "--count", `${branch}..${upstream}`], cwd), 10) || 0;
-  } catch {
-    behind = 0;
-  }
+  const ahead = parseTrackCount(track, /ahead (\d+)/);
+  const behind = parseTrackCount(track, /behind (\d+)/);
 
   return { ahead, behind, hasUpstream: true };
+}
+
+function parseTrackCount(track: string, pattern: RegExp): number {
+  const match = track.match(pattern);
+  return match ? parseInt(match[1], 10) || 0 : 0;
 }
 
 /** Create a new branch, optionally checking it out. */
