@@ -1,5 +1,4 @@
-• Rewind Codex conversations and continue from an earlier point.
-• Fork a new session from the latest Codex response when you want a fresh path.
-• Image files now open as previews in File Peek.
-• Voice input no longer clears text you already typed.
+• Codex Plan updates now appear as checklist-style lists.
+• Added support for SSH jump host connections.
+• Restored Claude Opus 4.5 to model selection.
 • Smaller fixes and stability improvements.
