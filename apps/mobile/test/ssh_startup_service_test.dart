@@ -307,6 +307,63 @@ void main() {
       ]);
     });
 
+    test('start, stop, and update use saved private key credentials', () async {
+      final manager = await createManager(
+        const Machine(
+          id: 'm7',
+          host: 'target.internal',
+          sshEnabled: true,
+          sshUsername: 'target-user',
+          sshAuthType: SshAuthType.privateKey,
+        ),
+      );
+      final gateway = _RecordingConnectionGateway();
+      final service = SshStartupService(manager, connectionGateway: gateway);
+
+      expect((await service.startBridgeServer('m7')).success, isTrue);
+      expect((await service.stopBridgeServer('m7')).success, isTrue);
+      expect((await service.updateBridgeServer('m7')).success, isTrue);
+
+      expect(gateway.calls, hasLength(3));
+      expect(
+        gateway.calls.map((call) => call.authType),
+        everyElement(SshAuthType.privateKey),
+      );
+      expect(gateway.calls.map((call) => call.password), everyElement(isNull));
+      expect(
+        gateway.calls.map((call) => call.privateKey),
+        everyElement('private-key'),
+      );
+    });
+
+    test(
+      'passes target private key through jump host when credentials inherit',
+      () async {
+        final manager = await createManager(
+          const Machine(
+            id: 'm8',
+            host: 'target.internal',
+            sshEnabled: true,
+            sshUsername: 'target-user',
+            sshAuthType: SshAuthType.privateKey,
+            sshJumpHost: 'jump.example.com',
+            sshJumpUsername: 'jump-user',
+          ),
+        );
+        final gateway = _RecordingConnectionGateway();
+        final service = SshStartupService(manager, connectionGateway: gateway);
+
+        final result = await service.startBridgeServer('m8');
+
+        expect(result.success, isTrue);
+        final jump = gateway.calls.single.jump;
+        expect(jump, isNotNull);
+        expect(jump!.authType, SshAuthType.privateKey);
+        expect(jump.jumpPassword, isNull);
+        expect(jump.jumpPrivateKey, 'private-key');
+      },
+    );
+
     test(
       'inline credential test fails before opening SSH when password missing',
       () async {
@@ -363,6 +420,42 @@ void main() {
       expect(jump, isNotNull);
       expect(jump!.username, 'jump-user');
       expect(jump.jumpPassword, 'jump-pw');
+    });
+
+    test('inline credential test passes separate jump private key', () async {
+      final manager = await createManager(
+        const Machine(
+          id: 'm9',
+          host: 'target.example.com',
+          sshEnabled: true,
+          sshUsername: 'target-user',
+        ),
+      );
+      final gateway = _RecordingConnectionGateway();
+      final service = SshStartupService(manager, connectionGateway: gateway);
+
+      final result = await service.testConnectionWithCredentials(
+        host: 'target.example.com',
+        sshPort: 22,
+        username: 'target-user',
+        authType: SshAuthType.privateKey,
+        privateKey: 'target-key',
+        jumpHost: 'jump.example.com',
+        jumpUsername: 'jump-user',
+        jumpAuthType: SshAuthType.privateKey,
+        jumpPrivateKey: 'jump-key',
+      );
+
+      expect(result.success, isTrue);
+      final call = gateway.calls.single;
+      expect(call.password, isNull);
+      expect(call.privateKey, 'target-key');
+      final jump = call.jump;
+      expect(jump, isNotNull);
+      expect(jump!.username, 'jump-user');
+      expect(jump.authType, SshAuthType.privateKey);
+      expect(jump.jumpPassword, isNull);
+      expect(jump.jumpPrivateKey, 'jump-key');
     });
   });
 }

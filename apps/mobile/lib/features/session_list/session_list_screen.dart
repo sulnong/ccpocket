@@ -2097,14 +2097,14 @@ class _SessionListScreenState extends State<SessionListScreen>
     final cubit = context.read<MachineManagerCubit>();
     final l = AppLocalizations.of(context);
 
-    // Check if password is saved
-    final savedPassword = await cubit.getSshPassword(m.machine.id);
-    String? password = savedPassword;
-
-    // If no saved password, prompt for it
-    if (password == null || password.isEmpty) {
-      password = await _promptForPassword(m.machine.displayName);
-      if (password == null) return; // User cancelled
+    String? password;
+    if (m.machine.sshAuthType == SshAuthType.password) {
+      final savedPassword = await cubit.getSshPassword(m.machine.id);
+      password = savedPassword;
+      if (password == null || password.isEmpty) {
+        password = await _promptForPassword(m.machine.displayName);
+        if (password == null) return; // User cancelled
+      }
     }
 
     final success = await cubit.updateBridge(m.machine.id, password: password);
@@ -2125,14 +2125,14 @@ class _SessionListScreenState extends State<SessionListScreen>
     final cubit = context.read<MachineManagerCubit>();
     final l = AppLocalizations.of(context);
 
-    // Check if password is saved
-    final savedPassword = await cubit.getSshPassword(m.machine.id);
-    String? password = savedPassword;
-
-    // If no saved password, prompt for it
-    if (password == null || password.isEmpty) {
-      password = await _promptForPassword(m.machine.displayName);
-      if (password == null) return; // User cancelled
+    String? password;
+    if (m.machine.sshAuthType == SshAuthType.password) {
+      final savedPassword = await cubit.getSshPassword(m.machine.id);
+      password = savedPassword;
+      if (password == null || password.isEmpty) {
+        password = await _promptForPassword(m.machine.displayName);
+        if (password == null) return; // User cancelled
+      }
     }
 
     final success = await cubit.startBridge(m.machine.id, password: password);
@@ -2153,14 +2153,14 @@ class _SessionListScreenState extends State<SessionListScreen>
     final cubit = context.read<MachineManagerCubit>();
     final l = AppLocalizations.of(context);
 
-    // Check if password is saved
-    final savedPassword = await cubit.getSshPassword(m.machine.id);
-    String? password = savedPassword;
-
-    // If no saved password, prompt for it
-    if (password == null || password.isEmpty) {
-      password = await _promptForPassword(m.machine.displayName);
-      if (password == null) return; // User cancelled
+    String? password;
+    if (m.machine.sshAuthType == SshAuthType.password) {
+      final savedPassword = await cubit.getSshPassword(m.machine.id);
+      password = savedPassword;
+      if (password == null || password.isEmpty) {
+        password = await _promptForPassword(m.machine.displayName);
+        if (password == null) return; // User cancelled
+      }
     }
 
     final success = await cubit.stopBridge(m.machine.id, password: password);

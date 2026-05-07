@@ -1029,12 +1029,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l = AppLocalizations.of(context);
 
-    final savedPassword = await cubit.getSshPassword(machine.machine.id);
-    var password = savedPassword;
-
-    if (password == null || password.isEmpty) {
-      password = await _promptForPassword(machine.machine.displayName);
-      if (password == null) return;
+    String? password;
+    if (machine.machine.sshAuthType == SshAuthType.password) {
+      final savedPassword = await cubit.getSshPassword(machine.machine.id);
+      password = savedPassword;
+      if (password == null || password.isEmpty) {
+        password = await _promptForPassword(machine.machine.displayName);
+        if (password == null) return;
+      }
     }
 
     if (!mounted) return;

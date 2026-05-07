@@ -491,6 +491,82 @@ void main() {
     });
 
     testWidgets(
+      'does not prompt for SSH password when updating with private key',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({});
+        final prefs = await SharedPreferences.getInstance();
+        final settingsCubit = _SeededSettingsCubit(
+          prefs,
+          activeMachineId: 'machine-1',
+        );
+        final machine = Machine(
+          id: 'machine-1',
+          name: 'Remote Mac',
+          host: '100.64.0.1',
+          sshEnabled: true,
+          sshUsername: 'k9i',
+          sshAuthType: SshAuthType.privateKey,
+          hasCredentials: true,
+        );
+        final machineManagerService = _StaticMachineManagerService([
+          MachineWithStatus(
+            machine: machine,
+            status: MachineStatus.online,
+            versionInfo: BridgeVersionInfo(
+              version: olderThanRecommendedBridgeVersion,
+            ),
+          ),
+        ]);
+        final sshService = _FakeSshStartupService(machineManagerService);
+        final machineManagerCubit = MachineManagerCubit(
+          machineManagerService,
+          sshService,
+          latestVersionService: _recommendedLatestVersionService(),
+        );
+        final bridge = _FakeBridgeService(
+          connected: true,
+          fakeLastUrl: 'ws://100.64.0.1:8765',
+        );
+
+        await tester.pumpWidget(
+          await _buildScreen(
+            bridge: bridge,
+            settingsCubit: settingsCubit,
+            machineManagerCubit: machineManagerCubit,
+            embedded: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(
+          find.byKey(const ValueKey('settings_update_bridge_button')),
+        );
+        await tester.pump();
+
+        final l = AppLocalizations.of(tester.element(find.byType(Scaffold)));
+        expect(find.text(l.sshPassword), findsNothing);
+        expect(bridge.disconnectCalled, isTrue);
+        expect(machineManagerCubit.state.updatingMachineId, 'machine-1');
+
+        machineManagerService.replaceStatuses([
+          MachineWithStatus(
+            machine: machine,
+            status: MachineStatus.online,
+            versionInfo: BridgeVersionInfo(version: recommendedBridgeVersion),
+          ),
+        ]);
+        sshService.updateCompleter.complete(SshResult.success());
+        await tester.pump();
+        await tester.pump();
+
+        await settingsCubit.close();
+        await machineManagerCubit.close();
+        machineManagerService.dispose();
+        bridge.dispose();
+      },
+    );
+
+    testWidgets(
       'shows bridge update button when npm latest is newer than required version',
       (tester) async {
         SharedPreferences.setMockInitialValues({});
