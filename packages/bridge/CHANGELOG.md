@@ -2,6 +2,11 @@
 
 All notable changes to `@ccpocket/bridge` will be documented in this file.
 
+## [1.56.2] - 2026-05-08
+
+### Changed
+- Document Bridge environment variables for deployment and operations.
+
 ## [1.56.1] - 2026-05-07
 
 ### Fixed

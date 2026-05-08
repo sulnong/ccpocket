@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.94.0] - 2026-05-08
+
+### Added
+- Add a focus mode for reviewing Git diffs.
+
+### Changed
+- Require Bridge 1.56.2 for the latest Bridge documentation and compatibility metadata.
+
+### Fixed
+- Tunnel Bridge WebSocket connections through SSH jump hosts.
+- Avoid false project path error inference in session output.
+
 ## [1.93.0] - 2026-05-07
 
 ### Added
