@@ -1451,6 +1451,13 @@ class AppLocalizationsKo extends AppLocalizations {
       '변경 블록 단위로 가로 스크롤할 수 있도록 긴 줄은 줄바꿈하지 않습니다. Git 작업은 길게 누르기 메뉴나 하단 버튼을 사용하세요.';
 
   @override
+  String get gitDiffFocusAutoLandscape => 'diff 집중 모드에서 가로 화면으로 전환';
+
+  @override
+  String get gitDiffFocusAutoLandscapeDescription =>
+      '모바일 레이아웃에서는 diff 집중 모드에 들어가면 화면을 가로 방향으로 고정합니다. 집중 모드를 종료하면 일반 회전으로 돌아갑니다.';
+
+  @override
   String get remoteGitStatusBadge => '동기화되지 않은 Git 커밋을 연한 배지로 표시';
 
   @override

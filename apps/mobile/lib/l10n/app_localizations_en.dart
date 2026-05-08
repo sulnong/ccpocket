@@ -1498,6 +1498,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Long lines stay unwrapped for hunk-level horizontal scrolling. Use long press menus or the bottom buttons for Git actions.';
 
   @override
+  String get gitDiffFocusAutoLandscape => 'Rotate diff focus mode to landscape';
+
+  @override
+  String get gitDiffFocusAutoLandscapeDescription =>
+      'On mobile layouts, entering diff focus mode locks the screen to landscape. Exiting focus mode restores normal rotation.';
+
+  @override
   String get remoteGitStatusBadge =>
       'Show a subtle badge for unsynced Git commits';
 

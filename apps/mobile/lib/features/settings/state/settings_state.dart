@@ -72,6 +72,9 @@ abstract class SettingsState with _$SettingsState {
     @Default(GitDiffInteractionMode.quickActions)
     GitDiffInteractionMode gitDiffInteractionMode,
 
+    /// Whether Git diff focus mode should rotate mobile layouts to landscape.
+    @Default(false) bool gitDiffFocusAutoLandscape,
+
     /// Whether to show a subtle badge when the current branch can push/pull.
     @Default(false) bool showRemoteGitStatusBadge,
 

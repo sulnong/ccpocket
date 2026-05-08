@@ -395,12 +395,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             context.read<SettingsCubit>().setThemeMode(mode),
                       ),
                     ),
-                    Divider(
-                      height: 1,
-                      indent: 16,
-                      endIndent: 16,
-                      color: cs.outlineVariant,
-                    ),
                     // Language
                     ListTile(
                       leading: Icon(Icons.language, color: cs.primary),
@@ -753,6 +747,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ),
+                    ),
+                    Divider(
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                      color: cs.outlineVariant,
+                    ),
+                    SwitchListTile(
+                      key: const ValueKey(
+                        'git_diff_focus_auto_landscape_toggle',
+                      ),
+                      title: Text(l.gitDiffFocusAutoLandscape),
+                      subtitle: Text(l.gitDiffFocusAutoLandscapeDescription),
+                      value: state.gitDiffFocusAutoLandscape,
+                      onChanged: context
+                          .read<SettingsCubit>()
+                          .setGitDiffFocusAutoLandscape,
                     ),
                     Divider(
                       height: 1,

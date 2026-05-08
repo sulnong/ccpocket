@@ -1420,6 +1420,13 @@ class AppLocalizationsZh extends AppLocalizations {
       '长行不换行，可按 hunk 横向滚动。Git 操作请使用长按菜单或底部按钮。';
 
   @override
+  String get gitDiffFocusAutoLandscape => '在 diff 专注模式中切换为横屏';
+
+  @override
+  String get gitDiffFocusAutoLandscapeDescription =>
+      '在移动布局中，进入 diff 专注模式时会锁定为横屏。退出专注模式后恢复正常旋转。';
+
+  @override
   String get remoteGitStatusBadge => '用浅色徽标显示未同步的 Git 提交';
 
   @override

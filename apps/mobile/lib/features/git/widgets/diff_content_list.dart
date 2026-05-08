@@ -28,6 +28,7 @@ class DiffContentList extends StatelessWidget {
   final bool lineWrapEnabled;
   final GitDiffInteractionMode interactionMode;
   final Set<String> stagedFilePaths;
+  final EdgeInsetsGeometry padding;
 
   const DiffContentList({
     super.key,
@@ -48,6 +49,7 @@ class DiffContentList extends StatelessWidget {
     this.lineWrapEnabled = false,
     this.interactionMode = GitDiffInteractionMode.quickActions,
     this.stagedFilePaths = const {},
+    this.padding = const EdgeInsets.symmetric(vertical: 8),
   });
 
   FileStageStatus _stageStatusFor(DiffFile file) {
@@ -75,7 +77,7 @@ class DiffContentList extends StatelessWidget {
       }
       return ListView(
         controller: scrollController,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: padding,
         children: [_buildFileSection(0, file)],
       );
     }
@@ -83,7 +85,7 @@ class DiffContentList extends StatelessWidget {
     // Multi-file mode: all visible files in one scrollable list
     return ListView.builder(
       controller: scrollController,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: padding,
       itemCount: files.length * 2 - 1,
       itemBuilder: (context, index) {
         if (index.isOdd) {

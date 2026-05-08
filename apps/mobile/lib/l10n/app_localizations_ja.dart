@@ -1438,6 +1438,13 @@ class AppLocalizationsJa extends AppLocalizations {
       '長い行を折り返さず、hunk 単位で横スクロールできます。Git 操作はロングタップのメニューまたは下部ボタンから実行します。';
 
   @override
+  String get gitDiffFocusAutoLandscape => 'diff集中モードで横画面にする';
+
+  @override
+  String get gitDiffFocusAutoLandscapeDescription =>
+      'モバイルレイアウトでは、diff集中モードに入ると横画面に固定します。解除すると通常の回転に戻ります。';
+
+  @override
   String get remoteGitStatusBadge => '未同期のGitコミットを薄いバッジで表示';
 
   @override

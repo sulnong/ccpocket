@@ -1338,7 +1338,14 @@ void main() {
         secondCubit.state.gitDiffInteractionMode,
         GitDiffInteractionMode.scrollFirst,
       );
+      expect(secondCubit.state.gitDiffFocusAutoLandscape, isFalse);
+
+      secondCubit.setGitDiffFocusAutoLandscape(true);
       await secondCubit.close();
+
+      final thirdCubit = SettingsCubit(prefs);
+      expect(thirdCubit.state.gitDiffFocusAutoLandscape, isTrue);
+      await thirdCubit.close();
     });
 
     testWidgets('shows mode selector in editor settings', (tester) async {
@@ -1377,6 +1384,20 @@ void main() {
         settingsCubit.state.gitDiffInteractionMode,
         GitDiffInteractionMode.scrollFirst,
       );
+
+      final autoLandscapeToggle = find.byKey(
+        const ValueKey('git_diff_focus_auto_landscape_toggle'),
+      );
+      await tester.ensureVisible(autoLandscapeToggle);
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.gitDiffFocusAutoLandscape), findsOneWidget);
+      expect(autoLandscapeToggle, findsOneWidget);
+
+      await tester.tap(autoLandscapeToggle);
+      await tester.pumpAndSettle();
+
+      expect(settingsCubit.state.gitDiffFocusAutoLandscape, isTrue);
 
       await settingsCubit.close();
       await machineManagerCubit.close();

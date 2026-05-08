@@ -45,6 +45,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const _keyHideVoiceInput = 'settings_hide_voice_input';
   static const _keyGitDiffInteractionMode =
       'settings_git_diff_interaction_mode';
+  static const _keyGitDiffFocusAutoLandscape =
+      'settings_git_diff_focus_auto_landscape';
   static const _keyShowRemoteGitStatusBadge =
       'settings_show_remote_git_status_badge';
   static const _keyShowBridgeNameInSessionList =
@@ -182,6 +184,8 @@ class SettingsCubit extends Cubit<SettingsState> {
     final gitDiffInteractionMode = gitDiffInteractionModeFromRaw(
       prefs.getString(_keyGitDiffInteractionMode),
     );
+    final gitDiffFocusAutoLandscape =
+        prefs.getBool(_keyGitDiffFocusAutoLandscape) ?? false;
     final showRemoteGitStatusBadge =
         prefs.getBool(_keyShowRemoteGitStatusBadge) ?? false;
     final showBridgeNameInSessionList =
@@ -232,6 +236,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       textScale: textScale.clamp(minTextScale, maxTextScale),
       hideVoiceInput: hideVoiceInput,
       gitDiffInteractionMode: gitDiffInteractionMode,
+      gitDiffFocusAutoLandscape: gitDiffFocusAutoLandscape,
       showRemoteGitStatusBadge: showRemoteGitStatusBadge,
       showBridgeNameInSessionList: showBridgeNameInSessionList,
       selectedAppIcon: selectedAppIcon,
@@ -333,6 +338,11 @@ class SettingsCubit extends Cubit<SettingsState> {
   void setGitDiffInteractionMode(GitDiffInteractionMode mode) {
     _prefs.setString(_keyGitDiffInteractionMode, mode.name);
     emit(state.copyWith(gitDiffInteractionMode: mode));
+  }
+
+  void setGitDiffFocusAutoLandscape(bool enabled) {
+    _prefs.setBool(_keyGitDiffFocusAutoLandscape, enabled);
+    emit(state.copyWith(gitDiffFocusAutoLandscape: enabled));
   }
 
   void setShowRemoteGitStatusBadge(bool show) {
