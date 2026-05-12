@@ -1,4 +1,2 @@
-• Improved command completions so suggestions appear in a more useful order.
-• Added a setting for choosing the code display font.
-• File mentions now support directory mentions and path-based search.
-• Improved rendering performance for long Markdown histories.
+• Fixed an issue where SSH Private Keys and Jump Host authentication details could be lost after editing a machine.
+• Improved bottom sheets so the keyboard no longer covers text fields.
