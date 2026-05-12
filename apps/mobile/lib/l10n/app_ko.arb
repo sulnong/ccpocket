@@ -44,6 +44,7 @@
   "share": "공유",
   "all": "전체",
   "none": "없음",
+  "dismissKeyboard": "키보드 닫기",
   "serverUnreachable": "서버에 연결할 수 없음",
   "serverUnreachableBody": "다음 Bridge 서버에 연결할 수 없습니다:",
   "setupSteps": "설정 단계:",

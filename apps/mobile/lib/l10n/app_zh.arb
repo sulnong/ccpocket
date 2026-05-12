@@ -46,6 +46,7 @@
   "share": "分享",
   "all": "全部",
   "none": "无",
+  "dismissKeyboard": "收起键盘",
 
   "serverUnreachable": "无法连接服务器",
   "serverUnreachableBody": "无法访问以下 Bridge 服务器：",

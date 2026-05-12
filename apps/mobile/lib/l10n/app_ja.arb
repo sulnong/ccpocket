@@ -44,6 +44,7 @@
   "share": "共有",
   "all": "すべて",
   "none": "なし",
+  "dismissKeyboard": "キーボードを閉じる",
 
   "serverUnreachable": "サーバーに接続できません",
   "serverUnreachableBody": "Bridge サーバーに到達できません:",

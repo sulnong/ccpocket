@@ -125,6 +125,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get none => '없음';
 
   @override
+  String get dismissKeyboard => '키보드 닫기';
+
+  @override
   String get serverUnreachable => '서버에 연결할 수 없음';
 
   @override

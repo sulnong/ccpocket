@@ -46,6 +46,7 @@
   "share": "Share",
   "all": "All",
   "none": "None",
+  "dismissKeyboard": "Dismiss keyboard",
 
   "serverUnreachable": "Server Unreachable",
   "serverUnreachableBody": "Could not reach the Bridge server at:",

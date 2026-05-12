@@ -125,6 +125,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get none => '无';
 
   @override
+  String get dismissKeyboard => '收起键盘';
+
+  @override
   String get serverUnreachable => '无法连接服务器';
 
   @override

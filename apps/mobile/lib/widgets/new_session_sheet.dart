@@ -1038,7 +1038,6 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final accent = providerStyleFor(context, pageProvider).foreground;
     return SingleChildScrollView(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1269,11 +1268,13 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     return Focus(
       onKeyEvent: _handleKeyEvent,
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1372,9 +1373,24 @@ class _SheetTitle extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l.newSession,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.newSession,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              IconButton(
+                key: const ValueKey('new_session_dismiss_keyboard_button'),
+                tooltip: l.dismissKeyboard,
+                onPressed: () => FocusManager.instance.primaryFocus?.unfocus(),
+                icon: const Icon(Icons.keyboard_hide),
+              ),
+            ],
           ),
           if (showToggle) ...[
             const SizedBox(height: 12),
@@ -1837,17 +1853,30 @@ class _AddWritableRootSheet extends StatelessWidget {
                 fit: FlexFit.loose,
                 child: SingleChildScrollView(
                   key: const ValueKey('additional_writable_root_scroll'),
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        l.addDirectory,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l.addDirectory,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            key: const ValueKey(
+                              'additional_writable_root_dismiss_keyboard_button',
+                            ),
+                            tooltip: l.dismissKeyboard,
+                            onPressed: () =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
+                            icon: const Icon(Icons.keyboard_hide),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Text(

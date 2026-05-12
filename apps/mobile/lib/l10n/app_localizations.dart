@@ -324,6 +324,12 @@ abstract class AppLocalizations {
   /// **'なし'**
   String get none;
 
+  /// No description provided for @dismissKeyboard.
+  ///
+  /// In ja, this message translates to:
+  /// **'キーボードを閉じる'**
+  String get dismissKeyboard;
+
   /// No description provided for @serverUnreachable.
   ///
   /// In ja, this message translates to:

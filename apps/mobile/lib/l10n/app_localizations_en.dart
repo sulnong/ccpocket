@@ -127,6 +127,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get none => 'None';
 
   @override
+  String get dismissKeyboard => 'Dismiss keyboard';
+
+  @override
   String get serverUnreachable => 'Server Unreachable';
 
   @override

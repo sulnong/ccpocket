@@ -125,6 +125,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get none => 'なし';
 
   @override
+  String get dismissKeyboard => 'キーボードを閉じる';
+
+  @override
   String get serverUnreachable => 'サーバーに接続できません';
 
   @override
