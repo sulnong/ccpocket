@@ -653,7 +653,10 @@ class _CodexChatBody extends HookWidget {
 
     useEffect(() {
       final sub = bridge.messagesForSession(sessionId).listen((msg) {
-        if (msg case SystemMessage(:final codexCliJoin)) {
+        if (msg case SystemMessage(
+          sessionId: final messageSessionId?,
+          :final codexCliJoin,
+        ) when messageSessionId == sessionId) {
           final command = codexCliJoin?.command.trim();
           if (codexCliJoin?.isValid == true &&
               command != null &&
