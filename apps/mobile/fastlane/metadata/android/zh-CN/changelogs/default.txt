@@ -1,2 +1,2 @@
-• 修复了编辑机器后 SSH Private Key 和 Jump Host 认证信息无法正确保留的问题。
-• 改进了底部弹窗中的键盘行为，避免遮挡输入框。
+• 添加了一项实验性功能，可通过 Codex CLI 加入在 CC Pocket 中开始的 Codex 会话。设置方法请参阅 Bridge README。
+• 发布了实验性的 Linux 桌面版。你可以将桌面端和移动端结合使用，更灵活地开展工作。

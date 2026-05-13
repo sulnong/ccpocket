@@ -1,2 +1,2 @@
-• Fixed an issue where SSH Private Keys and Jump Host authentication details could be lost after editing a machine.
-• Improved bottom sheets so the keyboard no longer covers text fields.
+• Added an experimental feature to join Codex sessions started in CC Pocket from Codex CLI. See the Bridge README for setup details.
+• Published an experimental Linux desktop build, making it easier to combine desktop and mobile workflows.
