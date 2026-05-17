@@ -2,6 +2,11 @@
 
 All notable changes to `@ccpocket/bridge` will be documented in this file.
 
+## [1.60.0] - 2026-05-17
+
+### Added
+- Add standard help and version commands to the Bridge CLI.
+
 ## [1.59.3] - 2026-05-17
 
 ### Fixed
