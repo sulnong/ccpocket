@@ -1668,6 +1668,12 @@ abstract class AppLocalizations {
   /// **'最も丁寧、最も遅い'**
   String get claudeEffortMaxDesc;
 
+  /// No description provided for @reasoningEffortNoneDesc.
+  ///
+  /// In ja, this message translates to:
+  /// **'推論なし'**
+  String get reasoningEffortNoneDesc;
+
   /// No description provided for @reasoningEffortMinimalDesc.
   ///
   /// In ja, this message translates to:

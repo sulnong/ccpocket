@@ -103,6 +103,7 @@ class BridgeService implements BridgeServiceBase {
   List<String> _claudeModels = [];
   Map<String, List<String>> _claudeModelEfforts = {};
   List<String> _codexModels = [];
+  Map<String, List<String>> _codexModelReasoningEfforts = {};
   List<String> _codexProfiles = [];
   String? _defaultCodexProfile;
   String? _bridgeVersion;
@@ -225,6 +226,8 @@ class BridgeService implements BridgeServiceBase {
   List<String> get claudeModels => _claudeModels;
   Map<String, List<String>> get claudeModelEfforts => _claudeModelEfforts;
   List<String> get codexModels => _codexModels;
+  Map<String, List<String>> get codexModelReasoningEfforts =>
+      _codexModelReasoningEfforts;
   List<String> get codexProfiles => _codexProfiles;
   String? get defaultCodexProfile => _defaultCodexProfile;
   String? get bridgeVersion => _bridgeVersion;
@@ -382,6 +385,7 @@ class BridgeService implements BridgeServiceBase {
                 :final claudeModels,
                 :final claudeModelEfforts,
                 :final codexModels,
+                :final codexModelReasoningEfforts,
                 :final codexProfiles,
                 :final defaultCodexProfile,
                 :final bridgeVersion,
@@ -393,6 +397,7 @@ class BridgeService implements BridgeServiceBase {
                 _claudeModels = claudeModels;
                 _claudeModelEfforts = claudeModelEfforts;
                 _codexModels = codexModels;
+                _codexModelReasoningEfforts = codexModelReasoningEfforts;
                 _codexProfiles = codexProfiles;
                 _defaultCodexProfile = defaultCodexProfile;
                 _bridgeVersion = bridgeVersion;
@@ -637,6 +642,7 @@ class BridgeService implements BridgeServiceBase {
     _claudeModels = const [];
     _claudeModelEfforts = const {};
     _codexModels = const [];
+    _codexModelReasoningEfforts = const {};
     _codexProfiles = const [];
     _defaultCodexProfile = null;
     _bridgeVersion = null;

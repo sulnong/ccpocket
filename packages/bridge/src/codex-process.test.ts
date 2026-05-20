@@ -880,7 +880,7 @@ describe("CodexProcess (app-server)", () => {
     await initializePromise;
     nextOutgoingNotification(child);
 
-    const modelsPromise = proc.listAvailableModels();
+    const modelsPromise = proc.listAvailableModelMetadata();
     await tick();
 
     const firstReq = nextOutgoingRequest(child);
@@ -896,7 +896,13 @@ describe("CodexProcess (app-server)", () => {
         id: firstReq.id,
         result: {
           data: [
-            { model: "gpt-5.5", id: "ignored", hidden: false },
+            {
+              model: "gpt-5.5",
+              id: "ignored",
+              hidden: false,
+              supportedReasoningEfforts: ["low", "medium", "high", "xhigh"],
+              defaultReasoningEffort: "medium",
+            },
             { model: "gpt-hidden", hidden: true },
             { model: "gpt-5.5", hidden: false },
           ],
@@ -918,13 +924,31 @@ describe("CodexProcess (app-server)", () => {
       `${JSON.stringify({
         id: secondReq.id,
         result: {
-          data: [{ id: "gpt-5.4-mini", hidden: false }],
+          data: [
+            {
+              id: "gpt-5.4-mini",
+              hidden: false,
+              supported_reasoning_levels: ["low", "medium"],
+              default_reasoning_effort: "low",
+            },
+          ],
           nextCursor: null,
         },
       })}\n`,
     );
 
-    await expect(modelsPromise).resolves.toEqual(["gpt-5.5", "gpt-5.4-mini"]);
+    await expect(modelsPromise).resolves.toEqual([
+      {
+        model: "gpt-5.5",
+        supportedReasoningEfforts: ["low", "medium", "high", "xhigh"],
+        defaultReasoningEffort: "medium",
+      },
+      {
+        model: "gpt-5.4-mini",
+        supportedReasoningEfforts: ["low", "medium"],
+        defaultReasoningEffort: "low",
+      },
+    ]);
     proc.stop();
   });
 

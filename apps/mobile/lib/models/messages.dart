@@ -371,6 +371,7 @@ enum SandboxMode {
 }
 
 enum ReasoningEffort {
+  none('none', 'None'),
   minimal('minimal', 'Minimal'),
   low('low', 'Low'),
   medium('medium', 'Medium'),
@@ -746,6 +747,14 @@ sealed class ServerMessage {
         codexModels:
             (json['codexModels'] as List?)?.map((e) => e as String).toList() ??
             const [],
+        codexModelReasoningEfforts:
+            (json['codexModelReasoningEfforts'] as Map?)?.map(
+              (key, value) => MapEntry(
+                key as String,
+                (value as List?)?.whereType<String>().toList() ?? const [],
+              ),
+            ) ??
+            const {},
         codexProfiles:
             (json['codexProfiles'] as List?)
                 ?.map((e) => e as String)
@@ -2016,6 +2025,7 @@ class SessionListMessage implements ServerMessage {
   final List<String> claudeModels;
   final Map<String, List<String>> claudeModelEfforts;
   final List<String> codexModels;
+  final Map<String, List<String>> codexModelReasoningEfforts;
   final List<String> codexProfiles;
   final String? defaultCodexProfile;
   final String? bridgeVersion;
@@ -2025,6 +2035,7 @@ class SessionListMessage implements ServerMessage {
     this.claudeModels = const [],
     this.claudeModelEfforts = const {},
     this.codexModels = const [],
+    this.codexModelReasoningEfforts = const {},
     this.codexProfiles = const [],
     this.defaultCodexProfile,
     this.bridgeVersion,

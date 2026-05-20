@@ -286,7 +286,10 @@ void main() {
           'claude-opus-4-7': ['low', 'medium', 'high', 'xhigh', 'max'],
           'claude-haiku-4-6': [],
         },
-        'codexModels': const [],
+        'codexModels': ['gpt-5.5'],
+        'codexModelReasoningEfforts': {
+          'gpt-5.5': ['low', 'medium', 'high', 'xhigh'],
+        },
         'codexProfiles': ['ccpocket', 'research'],
         'defaultCodexProfile': 'ccpocket',
       });
@@ -302,6 +305,13 @@ void main() {
         'max',
       ]);
       expect(sessionList.claudeModelEfforts['claude-haiku-4-6'], isEmpty);
+      expect(sessionList.codexModels, ['gpt-5.5']);
+      expect(sessionList.codexModelReasoningEfforts['gpt-5.5'], [
+        'low',
+        'medium',
+        'high',
+        'xhigh',
+      ]);
       expect(sessionList.codexProfiles, ['ccpocket', 'research']);
       expect(sessionList.defaultCodexProfile, 'ccpocket');
     });

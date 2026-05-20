@@ -835,6 +835,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get claudeEffortMaxDesc => '가장 철저하지만 가장 느림';
 
   @override
+  String get reasoningEffortNoneDesc => '추론 없음';
+
+  @override
   String get reasoningEffortMinimalDesc => '가장 빠름, 분석 최소';
 
   @override

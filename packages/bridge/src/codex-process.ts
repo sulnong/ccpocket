@@ -28,7 +28,13 @@ export interface CodexStartOptions {
   codexPermissionsMode?: "default" | "autoReview" | "fullAccess" | "custom";
   sandboxMode?: "read-only" | "workspace-write" | "danger-full-access";
   model?: string;
-  modelReasoningEffort?: "minimal" | "low" | "medium" | "high" | "xhigh";
+  modelReasoningEffort?:
+    | "none"
+    | "minimal"
+    | "low"
+    | "medium"
+    | "high"
+    | "xhigh";
   networkAccessEnabled?: boolean;
   webSearchMode?: "disabled" | "cached" | "live";
   collaborationMode?: "plan" | "default";
@@ -182,6 +188,12 @@ interface CodexResolvedSettings {
 export interface CodexProfileConfig {
   profiles: string[];
   defaultProfile?: string;
+}
+
+export interface CodexModelMetadata {
+  model: string;
+  supportedReasoningEfforts: string[];
+  defaultReasoningEffort?: string;
 }
 
 interface CodexModelListResponse {
@@ -473,7 +485,12 @@ export class CodexProcess extends EventEmitter<CodexProcessEvents> {
   }
 
   async listAvailableModels(): Promise<string[]> {
-    const models: string[] = [];
+    const models = await this.listAvailableModelMetadata();
+    return models.map((model) => model.model);
+  }
+
+  async listAvailableModelMetadata(): Promise<CodexModelMetadata[]> {
+    const models: CodexModelMetadata[] = [];
     const seenModels = new Set<string>();
     const seenCursors = new Set<string>();
     let cursor: string | null = null;
@@ -498,7 +515,16 @@ export class CodexProcess extends EventEmitter<CodexProcessEvents> {
                 : undefined;
           if (!model || seenModels.has(model)) continue;
           seenModels.add(model);
-          models.push(model);
+          models.push({
+            model,
+            supportedReasoningEfforts: extractReasoningEfforts(raw),
+            defaultReasoningEffort:
+              typeof raw.defaultReasoningEffort === "string"
+                ? raw.defaultReasoningEffort
+                : typeof raw.default_reasoning_effort === "string"
+                  ? raw.default_reasoning_effort
+                  : undefined,
+          });
         }
       }
 
@@ -2776,6 +2802,25 @@ function normalizeReasoningEffort(
   value: NonNullable<CodexStartOptions["modelReasoningEffort"]>,
 ): string {
   return value;
+}
+
+function extractReasoningEfforts(raw: Record<string, unknown>): string[] {
+  const values =
+    Array.isArray(raw.supportedReasoningEfforts)
+      ? raw.supportedReasoningEfforts
+    : Array.isArray(raw.supported_reasoning_levels)
+      ? raw.supported_reasoning_levels
+    : [];
+  const seen = new Set<string>();
+  const efforts: string[] = [];
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+    const normalized = value.trim();
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    efforts.push(normalized);
+  }
+  return efforts;
 }
 
 function sanitizeCodexModel(value: unknown): string | undefined {

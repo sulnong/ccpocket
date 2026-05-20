@@ -859,6 +859,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get claudeEffortMaxDesc => 'Most thorough, slowest';
 
   @override
+  String get reasoningEffortNoneDesc => 'No reasoning';
+
+  @override
   String get reasoningEffortMinimalDesc => 'Fastest, least analysis';
 
   @override

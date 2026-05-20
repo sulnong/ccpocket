@@ -836,6 +836,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get claudeEffortMaxDesc => '最も丁寧、最も遅い';
 
   @override
+  String get reasoningEffortNoneDesc => '推論なし';
+
+  @override
   String get reasoningEffortMinimalDesc => '最速、分析は最小限';
 
   @override

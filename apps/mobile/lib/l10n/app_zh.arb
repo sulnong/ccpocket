@@ -319,6 +319,7 @@
   "claudeEffortXHighDesc": "复杂工作的扩展推理",
   "claudeEffortMaxDesc": "最深入，最慢",
 
+  "reasoningEffortNoneDesc": "无推理",
   "reasoningEffortMinimalDesc": "最快，分析最少",
   "reasoningEffortLowDesc": "更快响应，分析较少",
   "reasoningEffortMediumDesc": "速度与质量的平衡",

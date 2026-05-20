@@ -604,6 +604,45 @@ void main() {
       expect(result!.worktreeBranch, isNull);
     });
 
+    testWidgets('Start returns visible default Codex model when untouched', (
+      tester,
+    ) async {
+      _enlargeViewport(tester);
+      NewSessionParams? result;
+
+      await tester.pumpWidget(
+        _wrap(
+          Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                result = await showNewSessionSheet(
+                  context: context,
+                  recentProjects: [(path: '/test/proj', name: 'proj')],
+                );
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('proj'));
+      await tester.pumpAndSettle();
+
+      final startButton = find.byKey(const ValueKey('dialog_start_button'));
+      await tester.ensureVisible(startButton);
+      await tester.tap(startButton);
+      await tester.pumpAndSettle();
+
+      expect(result, isNotNull);
+      expect(result!.provider, Provider.codex);
+      expect(result!.model, 'gpt-5.5');
+      expect(result!.codexModelOverridden, false);
+    });
+
     testWidgets('Codex provider can also enable worktree', (tester) async {
       _enlargeViewport(tester);
       await tester.pumpWidget(

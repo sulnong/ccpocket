@@ -228,6 +228,45 @@ SandboxMode? sandboxModeFromRaw(String? raw) {
 ReasoningEffort? reasoningEffortFromRaw(String? raw) =>
     enumByValue(ReasoningEffort.values, raw, (v) => v.value);
 
+const _fallbackCodexReasoningEfforts = <ReasoningEffort>[
+  ReasoningEffort.low,
+  ReasoningEffort.medium,
+  ReasoningEffort.high,
+  ReasoningEffort.xhigh,
+];
+
+const _ccPocketCodexReasoningOverrides = <ReasoningEffort>[
+  ReasoningEffort.none,
+];
+
+Map<String, List<ReasoningEffort>> _normalizeCodexModelReasoningEfforts(
+  Map<String, List<String>> raw,
+) {
+  return raw.map((model, values) {
+    final efforts = <ReasoningEffort>[..._ccPocketCodexReasoningOverrides];
+    for (final effort
+        in values.map(reasoningEffortFromRaw).whereType<ReasoningEffort>()) {
+      if (!efforts.contains(effort)) {
+        efforts.add(effort);
+      }
+    }
+    return MapEntry(model, efforts.toList(growable: false));
+  });
+}
+
+List<ReasoningEffort> _codexReasoningEffortsForModel(
+  String? model,
+  Map<String, List<ReasoningEffort>> modelEfforts,
+) {
+  if (model != null && modelEfforts.containsKey(model)) {
+    return modelEfforts[model] ?? const [];
+  }
+  return const [
+    ..._ccPocketCodexReasoningOverrides,
+    ..._fallbackCodexReasoningEfforts,
+  ];
+}
+
 WebSearchMode? webSearchModeFromRaw(String? raw) =>
     enumByValue(WebSearchMode.values, raw, (v) => v.value);
 
@@ -496,6 +535,7 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
   late final List<String> _claudeModelList;
   late final Map<String, List<ClaudeEffort>> _claudeModelEfforts;
   late final List<String> _codexModelList;
+  late final Map<String, List<ReasoningEffort>> _codexModelReasoningEfforts;
   late final List<String> _codexProfiles;
 
   // Codex-specific options
@@ -630,6 +670,9 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
     _codexModelList = bridgeCodexModels.isNotEmpty
         ? bridgeCodexModels
         : _defaultCodexModels;
+    _codexModelReasoningEfforts = _normalizeCodexModelReasoningEfforts(
+      widget.bridge?.codexModelReasoningEfforts ?? const {},
+    );
     _codexProfiles = widget.bridge?.codexProfiles ?? const [];
     final defaultCodexProfile = widget.bridge?.defaultCodexProfile;
     if (_codexProfiles.contains(defaultCodexProfile)) {
@@ -709,6 +752,18 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
     }
   }
 
+  void _normalizeSelectedCodexReasoningEffort() {
+    final efforts = _codexReasoningEffortsForModel(
+      _selectedModel ?? _codexModelList.firstOrNull,
+      _codexModelReasoningEfforts,
+    );
+    if (efforts.isNotEmpty && !efforts.contains(_modelReasoningEffort)) {
+      _modelReasoningEffort = efforts.contains(ReasoningEffort.high)
+          ? ReasoningEffort.high
+          : efforts.first;
+    }
+  }
+
   void _applyInitialParams() {
     final p = widget.initialParams;
     if (p == null) return;
@@ -756,6 +811,7 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
       _codexSandboxModeTouched = p.codexSandboxModeOverridden;
     }
     _modelReasoningEffort = p.modelReasoningEffort ?? _modelReasoningEffort;
+    _normalizeSelectedCodexReasoningEffort();
     _networkAccessEnabled = p.networkAccessEnabled ?? _networkAccessEnabled;
     _webSearchMode = p.webSearchMode;
     _additionalWritableRoots = [...p.additionalWritableRoots];
@@ -1035,7 +1091,7 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
       existingWorktreePath: useExisting
           ? _selectedWorktree?.worktreePath
           : null,
-      model: isCodex ? _selectedModel : null,
+      model: isCodex ? (_selectedModel ?? _codexModelList.firstOrNull) : null,
       sandboxMode: _sandboxMode,
       modelReasoningEffort: isCodex ? _modelReasoningEffort : null,
       networkAccessEnabled: isCodex ? _networkAccessEnabled : null,
@@ -1233,10 +1289,15 @@ class _NewSessionSheetContentState extends State<_NewSessionSheetContent> {
             // Codex advanced
             codexModels: _codexModelList,
             selectedModel: _selectedModel,
+            codexReasoningEfforts: _codexReasoningEffortsForModel(
+              _selectedModel ?? _codexModelList.firstOrNull,
+              _codexModelReasoningEfforts,
+            ),
             onSelectedModelChanged: (value) {
               setState(() {
                 _selectedModel = value;
                 _codexModelTouched = true;
+                _normalizeSelectedCodexReasoningEffort();
               });
             },
             sandboxMode: _sandboxMode,
@@ -2075,6 +2136,7 @@ class _OptionsSection extends StatelessWidget {
   // Codex advanced
   final List<String> codexModels;
   final String? selectedModel;
+  final List<ReasoningEffort> codexReasoningEfforts;
   final ValueChanged<String?> onSelectedModelChanged;
   final SandboxMode sandboxMode;
   final ValueChanged<SandboxMode> onSandboxModeChanged;
@@ -2128,6 +2190,7 @@ class _OptionsSection extends StatelessWidget {
     required this.onClaudePersistSessionChanged,
     required this.codexModels,
     required this.selectedModel,
+    required this.codexReasoningEfforts,
     required this.onSelectedModelChanged,
     required this.sandboxMode,
     required this.onSandboxModeChanged,
@@ -2582,18 +2645,30 @@ class _OptionsSection extends StatelessWidget {
                 onSelected: onClaudeEffortChanged,
               ),
             ),
-          if (provider == Provider.codex)
+          if (provider == Provider.codex && codexReasoningEfforts.isNotEmpty)
             modeSelectorField(
               key: const ValueKey('dialog_codex_reasoning_effort'),
               label: l.reasoning,
               icon: Icons.psychology,
-              title: modelReasoningEffort.label,
-              subtitle: _reasoningEffortDescription(modelReasoningEffort, l),
+              title:
+                  (codexReasoningEfforts.contains(modelReasoningEffort)
+                          ? modelReasoningEffort
+                          : codexReasoningEfforts.first)
+                      .label,
+              subtitle: _reasoningEffortDescription(
+                codexReasoningEfforts.contains(modelReasoningEffort)
+                    ? modelReasoningEffort
+                    : codexReasoningEfforts.first,
+                l,
+              ),
               onTap: () => showModeSheet<ReasoningEffort>(
                 title: l.reasoning,
                 subtitle: l.sheetSubtitleEffort,
-                modes: ReasoningEffort.values,
-                currentMode: modelReasoningEffort,
+                modes: codexReasoningEfforts,
+                currentMode:
+                    codexReasoningEfforts.contains(modelReasoningEffort)
+                    ? modelReasoningEffort
+                    : codexReasoningEfforts.first,
                 iconFor: (_) => Icons.psychology,
                 labelFor: (e) => e.label,
                 descriptionFor: (e) => _reasoningEffortDescription(e, l),
@@ -2741,6 +2816,7 @@ String _claudeEffortDescription(ClaudeEffort effort, AppLocalizations l) {
 
 String _reasoningEffortDescription(ReasoningEffort effort, AppLocalizations l) {
   return switch (effort) {
+    ReasoningEffort.none => l.reasoningEffortNoneDesc,
     ReasoningEffort.minimal => l.reasoningEffortMinimalDesc,
     ReasoningEffort.low => l.reasoningEffortLowDesc,
     ReasoningEffort.medium => l.reasoningEffortMediumDesc,

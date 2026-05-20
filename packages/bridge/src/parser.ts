@@ -872,7 +872,7 @@ export function parseClientMessage(data: string): ClientMessage | null {
           return null;
         if (
           msg.modelReasoningEffort !== undefined &&
-          !["minimal", "low", "medium", "high", "xhigh"].includes(
+          !["none", "minimal", "low", "medium", "high", "xhigh"].includes(
             String(msg.modelReasoningEffort),
           )
         )
@@ -1170,7 +1170,7 @@ export function parseClientMessage(data: string): ClientMessage | null {
           return null;
         if (
           msg.modelReasoningEffort !== undefined &&
-          !["minimal", "low", "medium", "high", "xhigh"].includes(
+          !["none", "minimal", "low", "medium", "high", "xhigh"].includes(
             String(msg.modelReasoningEffort),
           )
         )

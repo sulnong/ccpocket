@@ -454,8 +454,14 @@ describe("BridgeWebSocketServer resume/get_history flow", () => {
     } as any;
 
     (bridge as any).loadCodexModels = vi.fn(async () => [
-      "gpt-dynamic-default",
-      "gpt-dynamic-fast",
+      {
+        model: "gpt-dynamic-default",
+        supportedReasoningEfforts: ["low", "medium", "high"],
+      },
+      {
+        model: "gpt-dynamic-fast",
+        supportedReasoningEfforts: ["low"],
+      },
     ]);
 
     await (bridge as any).refreshCodexModels("/tmp/project-models");
@@ -472,6 +478,10 @@ describe("BridgeWebSocketServer resume/get_history flow", () => {
       "gpt-dynamic-default",
       "gpt-dynamic-fast",
     ]);
+    expect(sessionList.codexModelReasoningEfforts).toEqual({
+      "gpt-dynamic-default": ["low", "medium", "high"],
+      "gpt-dynamic-fast": ["low"],
+    });
 
     bridge.close();
   });

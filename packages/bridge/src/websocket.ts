@@ -20,6 +20,7 @@ import {
 import type { StartOptions } from "./sdk-process.js";
 import {
   CodexProcess,
+  type CodexModelMetadata,
   type CodexStartOptions,
   type CodexThreadSummary,
 } from "./codex-process.js";
@@ -132,6 +133,8 @@ const FALLBACK_CODEX_MODELS: string[] = [
   "gpt-5.3-codex",
   "gpt-5.3-codex-spark",
 ];
+
+const FALLBACK_CODEX_REASONING_EFFORTS = ["low", "medium", "high", "xhigh"];
 
 const CODEX_USER_TURN_UUID_RE = /^codex:user-turn:(\d+)$/;
 
@@ -560,6 +563,13 @@ export class BridgeWebSocketServer {
   };
   private claudeModelsRequest: Promise<void> | null = null;
   private codexModels: string[] = FALLBACK_CODEX_MODELS;
+  private codexModelReasoningEfforts: Record<string, string[]> =
+    Object.fromEntries(
+      FALLBACK_CODEX_MODELS.map((model) => [
+        model,
+        FALLBACK_CODEX_REASONING_EFFORTS,
+      ]),
+    );
   private codexModelsRequest: Promise<void> | null = null;
   /** FCM token → push notification locale */
   private tokenLocales = new Map<string, PushLocale>();
@@ -2392,6 +2402,7 @@ export class BridgeWebSocketServer {
                   | undefined,
                 model: oldSettings.model,
                 modelReasoningEffort: oldSettings.modelReasoningEffort as
+                  | "none"
                   | "minimal"
                   | "low"
                   | "medium"
@@ -2487,6 +2498,7 @@ export class BridgeWebSocketServer {
                     | undefined,
                   model: oldSettings.model,
                   modelReasoningEffort: oldSettings.modelReasoningEffort as
+                    | "none"
                     | "minimal"
                     | "low"
                     | "medium"
@@ -2738,6 +2750,7 @@ export class BridgeWebSocketServer {
               sandboxMode: newSandboxMode,
               model: oldSettings.model,
               modelReasoningEffort: oldSettings.modelReasoningEffort as
+                | "none"
                 | "minimal"
                 | "low"
                 | "medium"
@@ -2820,6 +2833,7 @@ export class BridgeWebSocketServer {
                 sandboxMode: newSandboxMode,
                 model: oldSettings.model,
                 modelReasoningEffort: oldSettings.modelReasoningEffort as
+                  | "none"
                   | "minimal"
                   | "low"
                   | "medium"
@@ -5171,6 +5185,7 @@ export class BridgeWebSocketServer {
       claudeModels: this.claudeModels,
       claudeModelEfforts: this.claudeModelEfforts,
       codexModels: this.codexModels,
+      codexModelReasoningEfforts: this.codexModelReasoningEfforts,
       codexProfiles: this.codexProfiles,
       defaultCodexProfile: this.defaultCodexProfile,
       bridgeVersion: getPackageVersion(),
@@ -5205,6 +5220,7 @@ export class BridgeWebSocketServer {
       claudeModels: this.claudeModels,
       claudeModelEfforts: this.claudeModelEfforts,
       codexModels: this.codexModels,
+      codexModelReasoningEfforts: this.codexModelReasoningEfforts,
       codexProfiles: this.codexProfiles,
       defaultCodexProfile: this.defaultCodexProfile,
       bridgeVersion: getPackageVersion(),
@@ -5297,13 +5313,16 @@ export class BridgeWebSocketServer {
     if (this.codexModelsRequest) return this.codexModelsRequest;
     this.codexModelsRequest = this.loadCodexModels(projectPath)
       .then((models) => {
-        this.codexModels =
-          models.length > 0 ? models : FALLBACK_CODEX_MODELS;
+        if (models.length > 0) {
+          this.applyCodexModels(models);
+        } else {
+          this.applyFallbackCodexModels();
+        }
         this.broadcastSessionList();
       })
       .catch((err) => {
         console.warn(`[ws] Failed to load Codex models: ${err}`);
-        this.codexModels = FALLBACK_CODEX_MODELS;
+        this.applyFallbackCodexModels();
         this.broadcastSessionList();
       })
       .finally(() => {
@@ -5358,18 +5377,55 @@ export class BridgeWebSocketServer {
     this.claudeModelEfforts = { ...FALLBACK_CLAUDE_MODEL_EFFORTS };
   }
 
-  private async loadCodexModels(projectPath?: string): Promise<string[]> {
+  private async loadCodexModels(
+    projectPath?: string,
+  ): Promise<CodexModelMetadata[]> {
     const process =
       this.getActiveCodexProcess() ??
       (await this.createStandaloneCodexProcess(projectPath));
     const isStandalone = process !== this.getActiveCodexProcess();
     try {
-      return await process.listAvailableModels();
+      const modelSource = process as CodexProcess & {
+        listAvailableModelMetadata?: () => Promise<CodexModelMetadata[]>;
+        listAvailableModels?: () => Promise<string[]>;
+      };
+      if (typeof modelSource.listAvailableModelMetadata === "function") {
+        return await modelSource.listAvailableModelMetadata();
+      }
+      const models = typeof modelSource.listAvailableModels === "function"
+        ? await modelSource.listAvailableModels()
+        : [];
+      return models.map((model) => ({
+        model,
+        supportedReasoningEfforts: FALLBACK_CODEX_REASONING_EFFORTS,
+      }));
     } finally {
       if (isStandalone) {
         process.stop();
       }
     }
+  }
+
+  private applyCodexModels(models: CodexModelMetadata[]): void {
+    this.codexModels = models.map((model) => model.model);
+    this.codexModelReasoningEfforts = Object.fromEntries(
+      models.map((model) => [
+        model.model,
+        model.supportedReasoningEfforts.length > 0
+          ? model.supportedReasoningEfforts
+          : FALLBACK_CODEX_REASONING_EFFORTS,
+      ]),
+    );
+  }
+
+  private applyFallbackCodexModels(): void {
+    this.codexModels = FALLBACK_CODEX_MODELS;
+    this.codexModelReasoningEfforts = Object.fromEntries(
+      FALLBACK_CODEX_MODELS.map((model) => [
+        model,
+        FALLBACK_CODEX_REASONING_EFFORTS,
+      ]),
+    );
   }
 
   private async refreshCodexProfiles(projectPath?: string): Promise<void> {
