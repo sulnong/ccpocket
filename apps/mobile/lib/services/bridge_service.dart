@@ -772,6 +772,7 @@ class BridgeService implements BridgeServiceBase {
   void _scheduleReconnect() {
     if (_intentionalDisconnect || _lastUrl == null) return;
 
+    _reconnectTimer?.cancel();
     _reconnectAttempt++;
     final delay = min(pow(2, _reconnectAttempt).toInt(), _maxReconnectDelay);
     _setBridgeConnectionState(BridgeConnectionState.reconnecting);
@@ -780,6 +781,14 @@ class BridgeService implements BridgeServiceBase {
         connect(_lastUrl!);
       }
     });
+  }
+
+  void _reconnectNow() {
+    final url = _lastUrl;
+    if (_intentionalDisconnect || url == null) return;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    connect(url);
   }
 
   @override
@@ -2154,12 +2163,12 @@ class BridgeService implements BridgeServiceBase {
       // The channel may appear "connected" but the underlying socket is dead.
       // A non-null closeCode means the socket has already been closed.
       if (_channel?.closeCode != null) {
-        _scheduleReconnect();
+        _reconnectNow();
       }
-    } else if (_connectionState == BridgeConnectionState.disconnected) {
-      connect(_lastUrl!);
+    } else if (_connectionState == BridgeConnectionState.disconnected ||
+        _connectionState == BridgeConnectionState.reconnecting) {
+      _reconnectNow();
     }
-    // If reconnecting, do nothing — already in progress.
   }
 
   void disconnect() {

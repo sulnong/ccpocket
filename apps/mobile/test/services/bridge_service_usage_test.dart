@@ -43,6 +43,48 @@ void main() {
       bridge.dispose();
     });
 
+    test(
+      'ensureConnected reconnects immediately from reconnecting state',
+      () async {
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+        var connectionCount = 0;
+        final firstSocketReady = Completer<WebSocket>();
+        final secondSocketReady = Completer<WebSocket>();
+        server.transform(WebSocketTransformer()).listen((socket) {
+          connectionCount += 1;
+          if (connectionCount == 1) {
+            firstSocketReady.complete(socket);
+          } else if (connectionCount == 2) {
+            secondSocketReady.complete(socket);
+          }
+        });
+
+        final bridge = BridgeService();
+        bridge.connect('ws://127.0.0.1:${server.port}');
+
+        final oldSocket = await firstSocketReady.future;
+        await oldSocket.close();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+
+        expect(
+          bridge.currentBridgeConnectionState,
+          BridgeConnectionState.reconnecting,
+        );
+
+        bridge.ensureConnected();
+
+        final resumedSocket = await secondSocketReady.future.timeout(
+          const Duration(milliseconds: 500),
+        );
+        expect(resumedSocket.readyState, WebSocket.open);
+
+        bridge.disconnect();
+        await resumedSocket.close();
+        await server.close(force: true);
+        bridge.dispose();
+      },
+    );
+
     test('disconnect clears last usage result cache', () async {
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final sockets = <WebSocket>[];
