@@ -80,6 +80,7 @@ web-preview.png
 
 # Codex investigation artifacts
 .codex-tmp/
+.worktrees/
 
 # Local verification fixture repos
 tmp/verification/issue54-path/
