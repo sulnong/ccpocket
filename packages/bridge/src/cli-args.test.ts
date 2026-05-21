@@ -62,4 +62,20 @@ describe("parseCliArgs", () => {
     expect(parseFlag(parsed, "port")).toBe("9000");
     expect(hasFlag(parsed, "uninstall")).toBe(true);
   });
+
+  it("parses relay value flags", () => {
+    const parsed = parseCliArgs([
+      "--relay-url",
+      "wss://relay.example.com",
+      "--relay-token=admin-secret",
+      "--relay-room-id",
+      "room-1",
+      "--relay-room-secret=room-secret",
+    ]);
+
+    expect(parseFlag(parsed, "relay-url")).toBe("wss://relay.example.com");
+    expect(parseFlag(parsed, "relay-token")).toBe("admin-secret");
+    expect(parseFlag(parsed, "relay-room-id")).toBe("room-1");
+    expect(parseFlag(parsed, "relay-room-secret")).toBe("room-secret");
+  });
 });

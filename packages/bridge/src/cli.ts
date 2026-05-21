@@ -29,14 +29,21 @@ Options:
       --api-key <key>   Enable API key authentication
       --public-ws-url <url>
                          Public ws:// or wss:// URL used in QR codes
+      --relay-url <url> Public ws:// or wss:// relay URL for self-hosted relay mode
+      --relay-token <token>
+                         Admin token used to register this Bridge with the relay
+      --relay-room-id <id>
+                         Optional stable relay room id
+      --relay-room-secret <secret>
+                         Optional stable relay room secret used by the app
       --no-mdns         Disable mDNS auto-discovery advertisement
 
 Setup options:
       --uninstall       Remove the registered service
 
 Configuration can also be provided with BRIDGE_PORT, BRIDGE_HOST,
-BRIDGE_API_KEY, BRIDGE_ALLOWED_DIRS, BRIDGE_PUBLIC_WS_URL, and
-BRIDGE_DISABLE_MDNS.`);
+BRIDGE_API_KEY, BRIDGE_ALLOWED_DIRS, BRIDGE_PUBLIC_WS_URL,
+BRIDGE_RELAY_URL, BRIDGE_RELAY_TOKEN, and BRIDGE_DISABLE_MDNS.`);
 }
 
 if (parsed.helpRequested) {
@@ -112,6 +119,10 @@ if (parsed.helpRequested) {
   const host = parseFlag(parsed, "host");
   const apiKey = parseFlag(parsed, "api-key");
   const publicWsUrl = parseFlag(parsed, "public-ws-url");
+  const relayUrl = parseFlag(parsed, "relay-url");
+  const relayToken = parseFlag(parsed, "relay-token");
+  const relayRoomId = parseFlag(parsed, "relay-room-id");
+  const relayRoomSecret = parseFlag(parsed, "relay-room-secret");
   const codexAppServerMode = parseFlag(parsed, "codex-app-server-mode");
   const codexSharedAppServerUrl = parseFlag(
     parsed,
@@ -124,6 +135,10 @@ if (parsed.helpRequested) {
   if (host) process.env.BRIDGE_HOST = host;
   if (apiKey) process.env.BRIDGE_API_KEY = apiKey;
   if (publicWsUrl) process.env.BRIDGE_PUBLIC_WS_URL = publicWsUrl;
+  if (relayUrl) process.env.BRIDGE_RELAY_URL = relayUrl;
+  if (relayToken) process.env.BRIDGE_RELAY_TOKEN = relayToken;
+  if (relayRoomId) process.env.BRIDGE_RELAY_ROOM_ID = relayRoomId;
+  if (relayRoomSecret) process.env.BRIDGE_RELAY_ROOM_SECRET = relayRoomSecret;
   if (codexAppServerMode) {
     process.env.BRIDGE_CODEX_APP_SERVER_MODE = codexAppServerMode;
   }

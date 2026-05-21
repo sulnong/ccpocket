@@ -20,6 +20,10 @@ import {
   PromptHistoryStore,
 } from "./prompt-history-store.js";
 import { resolvePlatformPath } from "./path-utils.js";
+import {
+  startBridgeRelayClient,
+  type BridgeRelayClient,
+} from "./relay-client.js";
 
 export async function startServer() {
   const PORT = parseInt(process.env.BRIDGE_PORT ?? "8765", 10);
@@ -114,6 +118,7 @@ export async function startServer() {
 
   const startedAt = Date.now();
   let wsServer: BridgeWebSocketServer | null = null;
+  let relayClient: BridgeRelayClient | null = null;
 
   const httpServer = createServer((req, res) => {
     // CORS headers for Flutter Web clients
@@ -213,11 +218,32 @@ export async function startServer() {
     console.log(`[bridge] Ready. Listening on http://${HOST}:${PORT} (HTTP + WebSocket)`);
     mdns?.start(PORT, API_KEY);
     printStartupInfo(PORT, HOST, API_KEY);
+    const relayUrl = process.env.BRIDGE_RELAY_URL?.trim();
+    if (relayUrl) {
+      const relayToken = process.env.BRIDGE_RELAY_TOKEN?.trim();
+      if (!relayToken) {
+        console.warn(
+          "[bridge] Relay disabled: BRIDGE_RELAY_TOKEN is required when BRIDGE_RELAY_URL is set",
+        );
+      } else {
+        relayClient = startBridgeRelayClient({
+          relayUrl,
+          relayToken,
+          localBridgeUrl: `ws://127.0.0.1:${PORT}${
+            API_KEY ? `?token=${encodeURIComponent(API_KEY)}` : ""
+          }`,
+          roomId: process.env.BRIDGE_RELAY_ROOM_ID,
+          roomSecret: process.env.BRIDGE_RELAY_ROOM_SECRET,
+          bridgeVersion: getVersionInfo(startedAt).version,
+        });
+      }
+    }
   });
 
   function shutdown() {
     console.log("\n[bridge] Shutting down gracefully...");
     mdns?.stop();
+    void relayClient?.stop();
     wsServer?.close();
     httpServer.close();
     process.exit(0);
