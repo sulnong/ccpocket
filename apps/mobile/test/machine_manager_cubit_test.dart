@@ -420,6 +420,57 @@ void main() {
 
       expect(machine?.id, 'm1');
     });
+
+    test(
+      'auto-connect machine lookup finds wss relay URLs without explicit port',
+      () async {
+        final cubit = createCubit();
+        addTearDown(cubit.close);
+
+        mockService.emitMachines([
+          MachineWithStatus(
+            machine: Machine(
+              id: 'relay',
+              host: 'relay.example.com',
+              port: 443,
+              useSsl: true,
+            ),
+          ),
+        ]);
+        await Future<void>.delayed(Duration.zero);
+
+        final machine = await findAutoConnectMachine(
+          cubit,
+          Uri.parse('wss://relay.example.com/r/room-1'),
+          loadTimeout: const Duration(milliseconds: 200),
+        );
+
+        expect(machine?.id, 'relay');
+      },
+    );
+
+    test(
+      'auto-connect machine lookup keeps bare ws URLs on bridge default port',
+      () async {
+        final cubit = createCubit();
+        addTearDown(cubit.close);
+
+        mockService.emitMachines([
+          MachineWithStatus(
+            machine: Machine(id: 'bridge', host: 'bridge.local', port: 8765),
+          ),
+        ]);
+        await Future<void>.delayed(Duration.zero);
+
+        final machine = await findAutoConnectMachine(
+          cubit,
+          Uri.parse('ws://bridge.local'),
+          loadTimeout: const Duration(milliseconds: 200),
+        );
+
+        expect(machine?.id, 'bridge');
+      },
+    );
   });
 
   group('MachineManagerCubit - refreshAll', () {

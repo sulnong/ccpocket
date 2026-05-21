@@ -2,6 +2,8 @@ import { randomBytes } from "node:crypto";
 import WebSocket from "ws";
 import { buildConnectionUrl, printConnectionQr } from "./startup-info.js";
 
+export const DEFAULT_BRIDGE_RELAY_URL = "wss://nqqlcknhdxys.sealoshzh.site";
+
 export interface RelayCredentials {
   roomId: string;
   roomSecret: string;
@@ -41,6 +43,12 @@ export function createRelayCredentials(): RelayCredentials {
   };
 }
 
+export function resolveBridgeRelayUrl(
+  env: NodeJS.ProcessEnv = process.env,
+): string {
+  return env["BRIDGE_RELAY_URL"]?.trim() || DEFAULT_BRIDGE_RELAY_URL;
+}
+
 export function buildRelayRegistrationUrl(
   relayUrl: string,
   relayToken?: string,
@@ -52,6 +60,32 @@ export function buildRelayRegistrationUrl(
     url.searchParams.set("token", token);
   }
   return url.toString();
+}
+
+export function normalizeRelayAppUrl(appUrl: string, relayUrl: string): string {
+  let parsedAppUrl: URL;
+  let parsedRelayUrl: URL;
+  try {
+    parsedAppUrl = new URL(appUrl);
+    parsedRelayUrl = new URL(relayUrl);
+  } catch {
+    return appUrl;
+  }
+
+  const hostname = parsedAppUrl.hostname.toLowerCase();
+  const isUnreachableHost =
+    hostname === "0.0.0.0" ||
+    hostname === "::" ||
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]";
+
+  if (!isUnreachableHost) return appUrl;
+
+  parsedAppUrl.protocol = parsedRelayUrl.protocol;
+  parsedAppUrl.hostname = parsedRelayUrl.hostname;
+  parsedAppUrl.port = parsedRelayUrl.port;
+  return parsedAppUrl.toString();
 }
 
 function parseRegisteredMessage(
@@ -96,6 +130,7 @@ export function startBridgeRelayClient(
   let relaySocket: WebSocket | undefined;
   let localSocket: WebSocket | undefined;
   let localOpen = false;
+  let registeredWithRelay = false;
   const pendingRelayFrames: Array<{
     data: WebSocket.RawData;
     binary: boolean;
@@ -103,6 +138,7 @@ export function startBridgeRelayClient(
 
   const cleanupSockets = () => {
     localOpen = false;
+    registeredWithRelay = false;
     if (localSocket) {
       localSocket.removeAllListeners();
       localSocket.close();
@@ -154,6 +190,7 @@ export function startBridgeRelayClient(
 
   const connect = () => {
     cleanupSockets();
+    registeredWithRelay = false;
     const registrationUrl = buildRelayRegistrationUrl(
       options.relayUrl,
       options.relayToken,
@@ -181,13 +218,15 @@ export function startBridgeRelayClient(
         relaySocket?.close();
         return;
       }
+      registeredWithRelay = true;
 
-      const deepLink = buildConnectionUrl(registered.appUrl, registered.secret);
-      log(`[relay-client] Relay registered: ${registered.appUrl}`);
+      const appUrl = normalizeRelayAppUrl(registered.appUrl, options.relayUrl);
+      const deepLink = buildConnectionUrl(appUrl, registered.secret);
+      log(`[relay-client] Relay registered: ${appUrl}`);
       log(`[relay-client] Deep Link: ${deepLink}`);
       void printConnectionQr({
         title: "Relay Connection",
-        wsUrl: registered.appUrl,
+        wsUrl: appUrl,
         token: registered.secret,
       });
 
@@ -202,7 +241,15 @@ export function startBridgeRelayClient(
       });
     });
 
-    relaySocket.on("close", () => {
+    relaySocket.on("close", (code, reason) => {
+      if (!registeredWithRelay && !stopped) {
+        const reasonText = reason.toString();
+        warn(
+          `[relay-client] Relay registration closed before QR code was printed: ${code}${
+            reasonText ? ` ${reasonText}` : ""
+          }. If the relay requires an admin token, set BRIDGE_RELAY_TOKEN to match RELAY_ADMIN_TOKEN; otherwise run the relay without RELAY_ADMIN_TOKEN.`,
+        );
+      }
       cleanupSockets();
       scheduleReconnect();
     });

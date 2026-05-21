@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 
 import '../constants/app_constants.dart';
 import '../models/machine.dart';
+import '../utils/bridge_url.dart';
 
 typedef BridgeWsUrlResolver =
     Future<String> Function(
@@ -155,7 +156,7 @@ class MachineManagerService {
           if (uri == null) continue;
 
           final host = uri.host;
-          final port = uri.hasPort ? uri.port : 8765;
+          final port = bridgePortForUri(uri);
           final useSsl = uri.scheme == 'wss' || uri.scheme == 'https';
           final key = '$host:$port';
 

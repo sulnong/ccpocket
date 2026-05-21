@@ -20,6 +20,7 @@ import '../../../services/fcm_service.dart';
 import '../../../services/machine_manager_service.dart';
 import '../../../services/revenuecat_service.dart';
 import '../../../theme/code_text_style.dart';
+import '../../../utils/bridge_url.dart';
 import 'settings_state.dart';
 
 /// Manages user settings with SharedPreferences persistence.
@@ -130,10 +131,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     );
     if (uri == null) return;
 
-    final machine = manager.findByHostPort(
-      uri.host,
-      uri.hasPort ? uri.port : 8765,
-    );
+    final machine = manager.findByHostPort(uri.host, bridgePortForUri(uri));
     if (machine != null) {
       emit(state.copyWith(activeMachineId: machine.id));
     }

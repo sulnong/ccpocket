@@ -24,6 +24,7 @@ import '../../services/connection_url_parser.dart';
 import '../../services/platform_environment_service.dart';
 import '../../services/server_discovery_service.dart';
 import '../../services/ssh_bridge_tunnel_service.dart';
+import '../../utils/bridge_url.dart';
 import '../../widgets/workspace_pane_chrome.dart';
 import '../../widgets/adaptive_context_menu.dart';
 import '../../widgets/new_session_sheet.dart';
@@ -79,7 +80,7 @@ Future<Machine?> findAutoConnectMachine(
 }) async {
   if (cubit == null) return null;
   await cubit.waitUntilLoaded(timeout: loadTimeout);
-  return cubit.findByHostPort(uri.host, uri.hasPort ? uri.port : 8765);
+  return cubit.findByHostPort(uri.host, bridgePortForUri(uri));
 }
 
 /// Shorten absolute path by replacing $HOME with ~.
@@ -217,6 +218,7 @@ class SessionListScreen extends StatefulWidget {
 class _SessionListScreenState extends State<SessionListScreen>
     with WidgetsBindingObserver {
   bool _isAutoConnecting = false;
+  bool _wasBackgrounded = false;
 
   /// Key to access HomeContent state for programmatic search (Cmd+K).
   final _homeContentKey = GlobalKey<HomeContentState>();
@@ -456,7 +458,7 @@ class _SessionListScreenState extends State<SessionListScreen>
       if (uri != null) {
         await machineManagerCubit.recordConnection(
           host: uri.host,
-          port: uri.port != 0 ? uri.port : 8765,
+          port: bridgePortForUri(uri),
           apiKey: trimmedApiKey.isNotEmpty ? trimmedApiKey : null,
           useSsl: uri.scheme == 'https',
         );
@@ -575,13 +577,35 @@ class _SessionListScreenState extends State<SessionListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      _wasBackgrounded = true;
+      return;
+    }
     if (state == AppLifecycleState.resumed) {
-      final bridge = context.read<BridgeService>();
-      bridge.ensureConnected();
-      if (bridge.isConnected) {
-        bridge.requestSessionList();
-        bridge.requestRecentSessions(projectPath: bridge.currentProjectFilter);
-      }
+      final forceReconnect = _wasBackgrounded;
+      _wasBackgrounded = false;
+      _refreshBridgeAfterResume(forceReconnect: forceReconnect);
+    }
+  }
+
+  @visibleForTesting
+  void refreshBridgeAfterResumeForTest({bool forceReconnect = false}) {
+    _refreshBridgeAfterResume(forceReconnect: forceReconnect);
+  }
+
+  void _refreshBridgeAfterResume({required bool forceReconnect}) {
+    final bridge = context.read<BridgeService>();
+    bridge.ensureConnected(forceReconnect: forceReconnect);
+    Timer(const Duration(milliseconds: 100), () {
+      if (!mounted || !bridge.isConnected) return;
+      bridge.requestSessionList();
+      bridge.requestRecentSessions(projectPath: bridge.currentProjectFilter);
+    });
+    if (bridge.isConnected) {
+      bridge.requestSessionList();
+      bridge.requestRecentSessions(projectPath: bridge.currentProjectFilter);
     }
   }
 
@@ -1727,7 +1751,7 @@ class _SessionListScreenState extends State<SessionListScreen>
   Machine? _machineForBridgeUrl(List<MachineWithStatus> machines, String? url) {
     final uri = _bridgeUri(url);
     if (uri == null) return null;
-    final port = uri.hasPort ? uri.port : 8765;
+    final port = bridgePortForUri(uri);
     for (final item in machines) {
       final machine = item.machine;
       if (machine.host == uri.host && machine.port == port) return machine;
@@ -1738,7 +1762,7 @@ class _SessionListScreenState extends State<SessionListScreen>
   String? _bridgeLabelFromUrl(String? url) {
     final uri = _bridgeUri(url);
     if (uri == null || uri.host.isEmpty) return null;
-    final port = uri.hasPort ? uri.port : 8765;
+    final port = bridgePortForUri(uri);
     return '${uri.host}:$port';
   }
 

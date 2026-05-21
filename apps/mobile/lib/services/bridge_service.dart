@@ -10,6 +10,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../core/logger.dart';
 import '../models/messages.dart';
 import '../models/offline_pending_action.dart';
+import '../utils/bridge_url.dart';
 import '../utils/codex_plan_update.dart';
 import 'bridge_service_base.dart';
 import 'session_runtime_store.dart';
@@ -625,7 +626,7 @@ class BridgeService implements BridgeServiceBase {
   String _bridgeTargetKey(Uri uri) {
     final scheme = uri.scheme.toLowerCase();
     final host = uri.host.toLowerCase();
-    final port = uri.hasPort ? uri.port : (scheme == 'wss' ? 443 : 80);
+    final port = bridgePortForUri(uri);
     final path = uri.path.isEmpty ? '/' : uri.path;
     return '$scheme://$host:$port$path';
   }
@@ -2157,8 +2158,12 @@ class BridgeService implements BridgeServiceBase {
   ///
   /// Call this when the app returns to foreground — iOS may silently kill
   /// background WebSocket connections without triggering [onDone]/[onError].
-  void ensureConnected() {
+  void ensureConnected({bool forceReconnect = false}) {
     if (_lastUrl == null) return;
+    if (forceReconnect) {
+      _reconnectNow();
+      return;
+    }
     if (_connectionState == BridgeConnectionState.connected) {
       // The channel may appear "connected" but the underlying socket is dead.
       // A non-null closeCode means the socket has already been closed.

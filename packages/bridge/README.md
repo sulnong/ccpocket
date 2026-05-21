@@ -40,10 +40,10 @@ ccpocket-bridge --version
 | `BRIDGE_API_KEY` | (none) | API key authentication (enabled when set) |
 | `BRIDGE_ALLOWED_DIRS` | `$HOME` | Comma-separated list of project directories the Bridge may access |
 | `BRIDGE_PUBLIC_WS_URL` | (none) | Public `ws://` / `wss://` URL used for startup deep link and QR code |
-| `BRIDGE_RELAY_URL` | (none) | Public `ws://` / `wss://` base URL of a relay |
+| `BRIDGE_RELAY_URL` | `wss://nqqlcknhdxys.sealoshzh.site` | Public `ws://` / `wss://` base URL of a relay |
 | `BRIDGE_RELAY_TOKEN` | (none) | Optional admin token used only when the relay requires trusted self-hosted registration |
-| `BRIDGE_RELAY_ROOM_ID` | random | Optional stable relay room id |
-| `BRIDGE_RELAY_ROOM_SECRET` | random | Optional stable relay room secret used by the app connection |
+| `BRIDGE_RELAY_ROOM_ID` | `$HOME/.ccpocket/bridge-identity.json` | Optional override for the stable relay room id |
+| `BRIDGE_RELAY_ROOM_SECRET` | `$HOME/.ccpocket/bridge-identity.json` | Optional override for the stable relay room secret used by the app connection |
 | `BRIDGE_CODEX_APP_SERVER_MODE` | `private` | Experimental Codex app-server mode: `private`, `managed`, or `external` |
 | `BRIDGE_CODEX_SHARED_APP_SERVER_URL` | `ws://127.0.0.1:8767` in `managed` mode | Experimental shared Codex app-server URL for Codex CLI co-presence |
 | `BRIDGE_DEMO_MODE` | (none) | Demo mode: hide Tailscale IPs and API key from QR code / logs |
@@ -102,6 +102,16 @@ For an official-style open relay, users only need the relay URL:
 BRIDGE_RELAY_URL=wss://relay.example.com \
 npx @gotokens/bridge@latest
 ```
+
+If `BRIDGE_RELAY_URL` is not set, Bridge uses the default public relay:
+`wss://nqqlcknhdxys.sealoshzh.site`. Set `BRIDGE_RELAY_URL` only when you want
+to override it.
+
+Bridge stores a stable relay identity in
+`$HOME/.ccpocket/bridge-identity.json` and reuses that room id and room secret
+across Bridge restarts. This keeps the phone's saved relay connection URL valid
+as long as the same computer is running Bridge. Delete that file only when you
+want the computer to appear as a new relay machine.
 
 Or with CLI flags:
 

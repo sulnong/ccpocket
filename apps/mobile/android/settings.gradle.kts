@@ -1,4 +1,7 @@
 pluginManagement {
+    val flutterStorageBaseUrl =
+        System.getenv("FLUTTER_STORAGE_BASE_URL") ?: "https://storage.flutter-io.cn"
+
     val flutterSdkPath =
         run {
             val properties = java.util.Properties()
@@ -11,6 +14,15 @@ pluginManagement {
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
+        maven {
+            url = uri("$flutterStorageBaseUrl/download.flutter.io")
+            content {
+                includeGroup("io.flutter")
+            }
+        }
+        maven {
+            url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
+        }
         google()
         mavenCentral()
         gradlePluginPortal()

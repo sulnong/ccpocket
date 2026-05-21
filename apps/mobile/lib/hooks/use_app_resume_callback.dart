@@ -7,14 +7,16 @@ void useAppResumeCallback(
   AppLifecycleState? lifecycleState,
   VoidCallback onResume,
 ) {
-  final prevLifecycleState = useRef<AppLifecycleState?>(null);
+  final wasBackgrounded = useRef(false);
   useEffect(() {
-    final prev = prevLifecycleState.value;
-    prevLifecycleState.value = lifecycleState;
+    if (lifecycleState == AppLifecycleState.paused ||
+        lifecycleState == AppLifecycleState.detached ||
+        lifecycleState == AppLifecycleState.hidden) {
+      wasBackgrounded.value = true;
+    }
 
-    if (lifecycleState == AppLifecycleState.resumed &&
-        (prev == AppLifecycleState.paused ||
-            prev == AppLifecycleState.detached)) {
+    if (lifecycleState == AppLifecycleState.resumed && wasBackgrounded.value) {
+      wasBackgrounded.value = false;
       onResume();
     }
     return null;

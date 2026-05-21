@@ -97,11 +97,15 @@ export async function printStartupInfo(
   port: number,
   _host: string,
   apiKey?: string,
+  options: {
+    printConnectionQr?: boolean;
+  } = {},
 ): Promise<void> {
   const addresses = getReachableAddresses();
   const demoMode = !!process.env.BRIDGE_DEMO_MODE;
   const rawPublicWsUrl = process.env.BRIDGE_PUBLIC_WS_URL;
   const publicWsUrl = validatePublicWsUrl(rawPublicWsUrl);
+  const shouldPrintConnectionQr = options.printConnectionQr ?? true;
 
   if (rawPublicWsUrl && !publicWsUrl) {
     console.warn(
@@ -146,6 +150,12 @@ export async function printStartupInfo(
   const fallbackWsUrl = displayAddresses.length > 0
     ? `ws://${displayAddresses.find((a) => a.label === "LAN")?.ip ?? displayAddresses[0].ip}:${port}`
     : undefined;
+
+  if (!shouldPrintConnectionQr) {
+    console.log(lines.join("\n"));
+    console.log("[bridge] ───────────────────────────────────────────────");
+    return;
+  }
 
   const connectWsUrl = publicWsUrl ?? fallbackWsUrl;
   if (!connectWsUrl) return;

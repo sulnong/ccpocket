@@ -85,6 +85,48 @@ void main() {
       },
     );
 
+    test(
+      'ensureConnected can force reconnect while still marked connected',
+      () async {
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+        var connectionCount = 0;
+        final firstSocketReady = Completer<WebSocket>();
+        final secondSocketReady = Completer<WebSocket>();
+        server.transform(WebSocketTransformer()).listen((socket) {
+          connectionCount += 1;
+          if (connectionCount == 1) {
+            firstSocketReady.complete(socket);
+          } else if (connectionCount == 2) {
+            secondSocketReady.complete(socket);
+          }
+        });
+
+        final bridge = BridgeService();
+        bridge.connect('ws://127.0.0.1:${server.port}');
+
+        final firstSocket = await firstSocketReady.future;
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(
+          bridge.currentBridgeConnectionState,
+          BridgeConnectionState.connected,
+        );
+
+        bridge.ensureConnected(forceReconnect: true);
+
+        final resumedSocket = await secondSocketReady.future.timeout(
+          const Duration(milliseconds: 500),
+        );
+        expect(resumedSocket.readyState, WebSocket.open);
+        expect(connectionCount, 2);
+
+        bridge.disconnect();
+        await firstSocket.close();
+        await resumedSocket.close();
+        await server.close(force: true);
+        bridge.dispose();
+      },
+    );
+
     test('disconnect clears last usage result cache', () async {
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final sockets = <WebSocket>[];

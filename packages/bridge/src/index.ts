@@ -21,9 +21,11 @@ import {
 } from "./prompt-history-store.js";
 import { resolvePlatformPath } from "./path-utils.js";
 import {
+  resolveBridgeRelayUrl,
   startBridgeRelayClient,
   type BridgeRelayClient,
 } from "./relay-client.js";
+import { loadOrCreateBridgeIdentity } from "./bridge-identity.js";
 
 export async function startServer() {
   const PORT = parseInt(process.env.BRIDGE_PORT ?? "8765", 10);
@@ -217,21 +219,29 @@ export async function startServer() {
   httpServer.listen(PORT, HOST, () => {
     console.log(`[bridge] Ready. Listening on http://${HOST}:${PORT} (HTTP + WebSocket)`);
     mdns?.start(PORT, API_KEY);
-    printStartupInfo(PORT, HOST, API_KEY);
-    const relayUrl = process.env.BRIDGE_RELAY_URL?.trim();
-    if (relayUrl) {
-      const relayToken = process.env.BRIDGE_RELAY_TOKEN?.trim();
-      relayClient = startBridgeRelayClient({
-        relayUrl,
-        relayToken,
-        localBridgeUrl: `ws://127.0.0.1:${PORT}${
-          API_KEY ? `?token=${encodeURIComponent(API_KEY)}` : ""
-        }`,
-        roomId: process.env.BRIDGE_RELAY_ROOM_ID,
-        roomSecret: process.env.BRIDGE_RELAY_ROOM_SECRET,
-        bridgeVersion: getVersionInfo(startedAt).version,
+    const relayUrl = resolveBridgeRelayUrl();
+    console.log(`[bridge] Relay mode enabled: ${relayUrl}`);
+    printStartupInfo(PORT, HOST, API_KEY, {
+      printConnectionQr: !relayUrl,
+    });
+    void loadOrCreateBridgeIdentity()
+      .then((bridgeIdentity) => {
+        const relayToken = process.env.BRIDGE_RELAY_TOKEN?.trim();
+        relayClient = startBridgeRelayClient({
+          relayUrl,
+          relayToken,
+          localBridgeUrl: `ws://127.0.0.1:${PORT}${
+            API_KEY ? `?token=${encodeURIComponent(API_KEY)}` : ""
+          }`,
+          roomId: process.env.BRIDGE_RELAY_ROOM_ID ?? bridgeIdentity.roomId,
+          roomSecret:
+            process.env.BRIDGE_RELAY_ROOM_SECRET ?? bridgeIdentity.roomSecret,
+          bridgeVersion: getVersionInfo(startedAt).version,
+        });
+      })
+      .catch((err) => {
+        console.error("[bridge] Failed to load relay identity:", err);
       });
-    }
   });
 
   function shutdown() {

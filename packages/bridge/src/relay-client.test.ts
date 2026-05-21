@@ -5,6 +5,8 @@ import { WebSocketServer, WebSocket } from "ws";
 import {
   buildRelayRegistrationUrl,
   createRelayCredentials,
+  normalizeRelayAppUrl,
+  resolveBridgeRelayUrl,
   startBridgeRelayClient,
 } from "./relay-client.js";
 
@@ -67,6 +69,34 @@ describe("bridge relay client", () => {
     expect(buildRelayRegistrationUrl("wss://relay.example.com/")).toBe(
       "wss://relay.example.com/bridge/register",
     );
+  });
+
+  it("uses the default public relay when no relay URL is configured", () => {
+    expect(resolveBridgeRelayUrl({})).toBe("wss://nqqlcknhdxys.sealoshzh.site");
+  });
+
+  it("prefers configured relay URL over the default public relay", () => {
+    expect(resolveBridgeRelayUrl({
+      BRIDGE_RELAY_URL: " wss://custom-relay.example.com ",
+    })).toBe("wss://custom-relay.example.com");
+  });
+
+  it("rewrites wildcard relay app URLs using the configured relay URL", () => {
+    expect(
+      normalizeRelayAppUrl(
+        "ws://0.0.0.0:8787/r/room-1",
+        "wss://nqqlcknhdxys.sealoshzh.site",
+      ),
+    ).toBe("wss://nqqlcknhdxys.sealoshzh.site/r/room-1");
+  });
+
+  it("preserves valid relay app URLs", () => {
+    expect(
+      normalizeRelayAppUrl(
+        "wss://relay.example.com/r/room-1",
+        "wss://nqqlcknhdxys.sealoshzh.site",
+      ),
+    ).toBe("wss://relay.example.com/r/room-1");
   });
 
   it("generates high entropy relay credentials", () => {
@@ -136,5 +166,27 @@ describe("bridge relay client", () => {
     expect(log).toHaveBeenCalledWith(
       expect.stringContaining("ccpocket://connect?url=ws%3A%2F%2Frelay.test%2Fr%2Froom-1&token=test-key-room"),
     );
+  });
+
+  it("warns when relay registration is rejected before a QR code can be printed", async () => {
+    const relayUrl = await createWsServer((ws) => {
+      ws.close(4001, "Unauthorized");
+    });
+
+    const warn = vi.fn();
+    const client = startBridgeRelayClient({
+      relayUrl,
+      localBridgeUrl: "ws://127.0.0.1:9",
+      bridgeVersion: "1.61.1",
+      reconnectDelayMs: 10_000,
+      warn,
+    });
+    closeFns.push(() => client.stop());
+
+    await vi.waitFor(() => {
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining("Relay registration closed before QR code was printed: 4001 Unauthorized"),
+      );
+    });
   });
 });

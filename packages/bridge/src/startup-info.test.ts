@@ -87,6 +87,18 @@ describe("startup-info", () => {
       );
     });
 
+    it("can print local addresses without a local deep link or QR code", async () => {
+      await printStartupInfo(8765, "0.0.0.0", "test-token", {
+        printConnectionQr: false,
+      });
+
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining("LAN:         ws://192.168.1.20:8765"),
+      );
+      expect(logSpy).not.toHaveBeenCalledWith(expect.stringContaining("Deep Link:"));
+      expect(mockQrToString).not.toHaveBeenCalled();
+    });
+
     it("uses public url for deep link and qr when configured", async () => {
       process.env.BRIDGE_PUBLIC_WS_URL = "wss://example.ngrok-free.app/ws";
 
@@ -153,11 +165,12 @@ describe("startup-info", () => {
   describe("printConnectionQr", () => {
     it("prints a labelled relay deep link and QR code", async () => {
       const { printConnectionQr } = await import("./startup-info.js");
+      const relayToken = "test-key-room-value";
 
       await printConnectionQr({
         title: "Relay Connection",
         wsUrl: "wss://relay.example.com/r/room-1",
-        token: "room-secret",
+        token: relayToken,
       });
 
       expect(logSpy).toHaveBeenCalledWith(
@@ -165,11 +178,11 @@ describe("startup-info", () => {
       );
       expect(logSpy).toHaveBeenCalledWith(
         expect.stringContaining(
-          "Deep Link: ccpocket://connect?url=wss%3A%2F%2Frelay.example.com%2Fr%2Froom-1&token=room-secret",
+          `Deep Link: ccpocket://connect?url=wss%3A%2F%2Frelay.example.com%2Fr%2Froom-1&token=${relayToken}`,
         ),
       );
       expect(mockQrToString).toHaveBeenCalledWith(
-        "ccpocket://connect?url=wss%3A%2F%2Frelay.example.com%2Fr%2Froom-1&token=room-secret",
+        `ccpocket://connect?url=wss%3A%2F%2Frelay.example.com%2Fr%2Froom-1&token=${relayToken}`,
         expect.objectContaining({ type: "terminal", small: true }),
       );
     });

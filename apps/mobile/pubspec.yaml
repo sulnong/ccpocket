@@ -95,6 +95,11 @@ dependency_overrides:
       url: https://github.com/Sabbar-Engineering/irondash
       path: engine_context/dart
 
+hooks:
+  user_defines:
+    sqlite3:
+      source: system
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

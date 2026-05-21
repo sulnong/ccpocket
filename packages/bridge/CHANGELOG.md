@@ -2,6 +2,16 @@
 
 All notable changes to `@gotokens/bridge` will be documented in this file.
 
+## [1.61.2] - 2026-05-21
+
+### Changed
+- Use `wss://nqqlcknhdxys.sealoshzh.site` as the default public relay and keep `BRIDGE_RELAY_URL` as an override.
+- Enable relay mode by default and print the relay connection QR instead of the local LAN QR when using the default relay.
+
+### Fixed
+- Rewrite unreachable relay app URLs such as `0.0.0.0` to the configured relay origin before printing the connection QR.
+- Warn when relay registration closes before a QR code is printed, including likely token configuration guidance.
+
 ## [1.61.1] - 2026-05-20
 
 ### Fixed
