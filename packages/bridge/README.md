@@ -40,6 +40,10 @@ ccpocket-bridge --version
 | `BRIDGE_API_KEY` | (none) | API key authentication (enabled when set) |
 | `BRIDGE_ALLOWED_DIRS` | `$HOME` | Comma-separated list of project directories the Bridge may access |
 | `BRIDGE_PUBLIC_WS_URL` | (none) | Public `ws://` / `wss://` URL used for startup deep link and QR code |
+| `BRIDGE_RELAY_URL` | (none) | Public `ws://` / `wss://` base URL of a trusted self-hosted relay |
+| `BRIDGE_RELAY_TOKEN` | (none) | Admin token used by this Bridge to register with the relay |
+| `BRIDGE_RELAY_ROOM_ID` | random | Optional stable relay room id |
+| `BRIDGE_RELAY_ROOM_SECRET` | random | Optional stable relay room secret used by the app connection |
 | `BRIDGE_CODEX_APP_SERVER_MODE` | `private` | Experimental Codex app-server mode: `private`, `managed`, or `external` |
 | `BRIDGE_CODEX_SHARED_APP_SERVER_URL` | `ws://127.0.0.1:8767` in `managed` mode | Experimental shared Codex app-server URL for Codex CLI co-presence |
 | `BRIDGE_DEMO_MODE` | (none) | Demo mode: hide Tailscale IPs and API key from QR code / logs |
@@ -84,6 +88,47 @@ is reachable through a reverse proxy, tunnel, or public domain.
 
 Without it, the printed QR code is LAN-oriented by default and typically encodes
 something like `ws://192.168.x.x:8765`.
+
+## Self-Hosted Relay
+
+Relay mode lets the phone connect through a public WebSocket relay while the
+Bridge still runs on your own computer. This is useful when the phone and
+computer are not on the same reachable network and you do not want to set up
+Tailscale.
+
+Run a trusted relay server on a public host:
+
+```bash
+RELAY_ADMIN_TOKEN=change-me \
+RELAY_PUBLIC_URL=wss://relay.example.com \
+npm run relay
+```
+
+Then run the Bridge on your computer and point it at that relay:
+
+```bash
+BRIDGE_RELAY_URL=wss://relay.example.com \
+BRIDGE_RELAY_TOKEN=change-me \
+npx @ccpocket/bridge@latest
+```
+
+Or with CLI flags:
+
+```bash
+ccpocket-bridge \
+  --relay-url wss://relay.example.com \
+  --relay-token change-me
+```
+
+When registration succeeds, the Bridge prints a relay deep link and QR code.
+The app connects to a path like `wss://relay.example.com/r/<roomId>` with the
+room secret in the existing `token` query parameter. Existing direct LAN,
+Tailscale, mDNS, and `BRIDGE_PUBLIC_WS_URL` flows continue to work unchanged.
+
+Security model: relay v1 is a trusted relay. It forwards WebSocket frames and
+can see plaintext ccpocket protocol traffic. Run it only on infrastructure you
+trust, use `wss://` in production, and treat `RELAY_ADMIN_TOKEN` plus the room
+secret as credentials. This is not end-to-end encrypted.
 
 ## Experimental: Join a CC Pocket Codex Session from Codex CLI
 
