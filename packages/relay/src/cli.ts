@@ -6,7 +6,31 @@ const port = Number.parseInt(process.env.RELAY_PORT ?? "8787", 10);
 const adminToken = process.env.RELAY_ADMIN_TOKEN ?? "";
 const publicUrl = process.env.RELAY_PUBLIC_URL;
 
-startRelayServer({ host, port, adminToken, publicUrl })
+function parseOptionalInt(name: string): number | undefined {
+  const raw = process.env[name]?.trim();
+  if (!raw) return undefined;
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error(`${name} must be a non-negative integer`);
+  }
+  return value;
+}
+
+startRelayServer({
+  host,
+  port,
+  adminToken,
+  publicUrl,
+  maxRooms: parseOptionalInt("RELAY_MAX_ROOMS"),
+  maxConnections: parseOptionalInt("RELAY_MAX_CONNECTIONS"),
+  maxRoomsPerIp: parseOptionalInt("RELAY_MAX_ROOMS_PER_IP"),
+  maxConnectionsPerIp: parseOptionalInt("RELAY_MAX_CONNECTIONS_PER_IP"),
+  maxMessageBytes: parseOptionalInt("RELAY_MAX_MESSAGE_BYTES"),
+  idleRoomTtlMs: parseOptionalInt("RELAY_IDLE_ROOM_TTL_MS"),
+  heartbeatIntervalMs: parseOptionalInt("RELAY_HEARTBEAT_INTERVAL_MS"),
+  abuseWindowMs: parseOptionalInt("RELAY_ABUSE_WINDOW_MS"),
+  maxRejectionsPerIp: parseOptionalInt("RELAY_MAX_REJECTIONS_PER_IP"),
+})
   .then((server) => {
     console.log(`[relay] Listening on http://${host}:${port}`);
     if (publicUrl) {
