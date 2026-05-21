@@ -16,6 +16,33 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
+    test('autoConnect preserves relay path when appending token', () async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      final socketReady = Completer<WebSocket>();
+      server.transform(WebSocketTransformer()).listen((socket) {
+        socketReady.complete(socket);
+      });
+      SharedPreferences.setMockInitialValues({
+        'bridge_url': 'ws://127.0.0.1:${server.port}/r/room-1',
+      });
+
+      final bridge = BridgeService();
+
+      final attempted = await bridge.autoConnect(apiKey: 'room-secret');
+      final socket = await socketReady.future;
+
+      expect(attempted, isTrue);
+      expect(
+        bridge.lastUrl,
+        'ws://127.0.0.1:${server.port}/r/room-1?token=room-secret',
+      );
+
+      bridge.disconnect();
+      await socket.close();
+      await server.close(force: true);
+      bridge.dispose();
+    });
+
     test('disconnect clears last usage result cache', () async {
       final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       final sockets = <WebSocket>[];

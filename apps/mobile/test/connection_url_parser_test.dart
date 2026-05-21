@@ -90,6 +90,18 @@ void main() {
         expect(result.token, 'my-secret');
       });
 
+      test('parses relay path deep link with token', () {
+        final result =
+            ConnectionUrlParser.parse(
+                  'ccpocket://connect?url=wss://relay.example.com/r/room-1&token=room-secret',
+                )
+                as ConnectionParams?;
+
+        expect(result, isNotNull);
+        expect(result!.serverUrl, 'wss://relay.example.com/r/room-1');
+        expect(result.token, 'room-secret');
+      });
+
       test('parses deep link with url only (no token)', () {
         final result =
             ConnectionUrlParser.parse(
