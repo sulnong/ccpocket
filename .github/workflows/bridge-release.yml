@@ -70,12 +70,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Publish to npm
-        run: npx npm@latest publish --workspace=packages/bridge --provenance --access public
-
       - name: Extract version from tag
         id: version
         run: echo "version=${GITHUB_REF_NAME#bridge/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify package version matches tag
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./packages/bridge/package.json').version")"
+          if [ "$PACKAGE_VERSION" != "${{ steps.version.outputs.version }}" ]; then
+            echo "Tag version ${{ steps.version.outputs.version }} does not match package version $PACKAGE_VERSION"
+            exit 1
+          fi
+
+      - name: Publish to npm
+        run: npx npm@latest publish --workspace=packages/bridge --provenance --access public
 
       - name: Extract changelog section
         run: |
