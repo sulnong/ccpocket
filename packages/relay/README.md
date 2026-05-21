@@ -53,6 +53,13 @@ The Bridge prints the same pairing link and terminal QR code after registration.
 
 ## Configuration
 
+Copy `packages/relay/.env.example` to a private deployment path and edit
+`RELAY_PUBLIC_URL` for your domain:
+
+```bash
+cp packages/relay/.env.example /etc/ccpocket/relay.env
+```
+
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
 | `RELAY_HOST` | `0.0.0.0` | Bind address |
@@ -68,6 +75,49 @@ The Bridge prints the same pairing link and terminal QR code after registration.
 | `RELAY_HEARTBEAT_INTERVAL_MS` | `30000` | WebSocket ping/pong and idle scan interval |
 | `RELAY_ABUSE_WINDOW_MS` | `60000` | Rejection tracking window per client IP |
 | `RELAY_MAX_REJECTIONS_PER_IP` | `30` | Rejections allowed in the abuse window before temporary refusal |
+
+### Loading an env file
+
+The relay reads normal process environment variables. It does not parse `.env`
+files by itself, so load the file with your shell, service manager, or
+container runtime.
+
+Shell:
+
+```bash
+set -a
+. /etc/ccpocket/relay.env
+set +a
+npm run start --workspace=packages/relay
+```
+
+Docker:
+
+```bash
+docker run --env-file /etc/ccpocket/relay.env -p 8787:8787 ccpocket-relay
+```
+
+Docker Compose:
+
+```yaml
+services:
+  relay:
+    image: ccpocket-relay
+    env_file:
+      - /etc/ccpocket/relay.env
+    ports:
+      - "8787:8787"
+```
+
+systemd:
+
+```ini
+[Service]
+WorkingDirectory=/opt/ccpocket
+EnvironmentFile=/etc/ccpocket/relay.env
+ExecStart=/usr/bin/npm run start --workspace=packages/relay
+Restart=always
+```
 
 ## Routes
 
