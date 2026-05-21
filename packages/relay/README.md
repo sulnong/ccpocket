@@ -94,7 +94,7 @@ npm run start --workspace=packages/relay
 Docker:
 
 ```bash
-docker run --env-file /etc/ccpocket/relay.env -p 8787:8787 ccpocket-relay
+docker run --env-file /etc/ccpocket/relay.env -p 8787:8787 ghcr.io/sulnong/ccpocket-relay:latest
 ```
 
 Docker Compose:
@@ -102,7 +102,7 @@ Docker Compose:
 ```yaml
 services:
   relay:
-    image: ccpocket-relay
+    image: ghcr.io/sulnong/ccpocket-relay:latest
     env_file:
       - /etc/ccpocket/relay.env
     ports:
@@ -193,6 +193,14 @@ rate limiting for internet-facing deployments.
 Your hosting platform must support WebSocket Upgrade. Put TLS at the platform
 or reverse proxy layer and set `RELAY_PUBLIC_URL` to the external `wss://`
 origin that the mobile app can reach.
+
+On every push to `main` that changes `packages/relay/**`, GitHub Actions builds
+and publishes the relay Docker image to GitHub Container Registry:
+
+- `ghcr.io/sulnong/ccpocket-relay:latest`
+- `ghcr.io/sulnong/ccpocket-relay:main-<short-sha>`
+
+Use the `main-<short-sha>` tag when you need a pinned, rollback-friendly image.
 
 This v1 relay forwards plaintext CC Pocket protocol traffic and is not
 end-to-end encrypted. Run it only where the relay operator is trusted. Do not

@@ -1,0 +1,16 @@
+.git
+.github
+.worktrees
+node_modules
+**/node_modules
+**/dist
+apps/mobile/build
+apps/mobile/.dart_tool
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+coverage
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
