@@ -7,7 +7,7 @@ allowed-tools: Bash(git:*), Bash(grep:*), Bash(npm run test:bridge), Bash(npx ts
 
 # Bridge Server リリース
 
-Bridge Server (`@ccpocket/bridge`) のリリースを行う。
+Bridge Server (`@gotokens/bridge`) のリリースを行う。
 タグ push 後は GH Actions が自動で npm publish + GitHub Release を作成する。
 
 ## 前提

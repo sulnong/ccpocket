@@ -70,7 +70,7 @@ describe("setup-systemd", () => {
       expect(content).toContain("[Unit]");
       expect(content).toContain("Description=CC Pocket Bridge Server");
       expect(content).toContain(
-        "ExecStart=/usr/bin/npx --yes @ccpocket/bridge@latest",
+        "ExecStart=/usr/bin/npx --yes @gotokens/bridge@latest",
       );
       expect(content).toContain(
         "Environment=PATH=/usr/bin:/usr/local/bin:/usr/bin:/bin",

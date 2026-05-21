@@ -154,7 +154,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=${npxPath} --yes @ccpocket/bridge@latest
+ExecStart=${npxPath} --yes @gotokens/bridge@latest
 ${envLines}
 Restart=on-failure
 RestartSec=5

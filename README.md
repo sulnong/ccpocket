@@ -20,7 +20,7 @@ Experimental Linux desktop builds are also available from GitHub Releases.
 3. Start the CC Pocket Bridge Server:
 
 ```bash
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 4. Install CC Pocket and scan the QR code printed by the Bridge Server.
@@ -30,8 +30,8 @@ npx @ccpocket/bridge@latest
 |----------|---------|
 | **iOS / iPadOS** | <a href="https://apps.apple.com/us/app/cc-pocket-code-anywhere/id6759188790"><img height="40" alt="Download on the App Store" src="docs/images/app-store-badge.svg" /></a> |
 | **Android** | <a href="https://play.google.com/store/apps/details?id=com.k9i.ccpocket"><img height="40" alt="Get it on Google Play" src="docs/images/google-play-badge-en.svg" /></a> |
-| **macOS** | Download the latest `.dmg` from [GitHub Releases](https://github.com/K9i-0/ccpocket/releases?q=macos). Look for releases tagged `macos/v*`. |
-| **Linux (experimental)** | Download the latest `.tar.gz` from [GitHub Releases](https://github.com/K9i-0/ccpocket/releases?q=linux). Look for releases tagged `linux/v*`. |
+| **macOS** | Download the latest `.dmg` from [GitHub Releases](https://github.com/sulnong/ccpocket/releases?q=macos). Look for releases tagged `macos/v*`. |
+| **Linux (experimental)** | Download the latest `.tar.gz` from [GitHub Releases](https://github.com/sulnong/ccpocket/releases?q=linux). Look for releases tagged `linux/v*`. |
 
 ## Free to Use
 
@@ -76,14 +76,14 @@ For access away from home or the office, Tailscale is the recommended setup:
 For an always-on host, the Bridge Server can also be registered as a background service:
 
 ```bash
-npx @ccpocket/bridge@latest setup
+npx @gotokens/bridge@latest setup
 ```
 
 Service setup supports macOS launchd and Linux systemd.
 
 ## Notes
 
-- Claude sessions require `@ccpocket/bridge` `1.25.0` or newer and an `ANTHROPIC_API_KEY`.
+- Claude sessions require `@gotokens/bridge` `1.25.0` or newer and an `ANTHROPIC_API_KEY`.
   Claude subscription login via `/login` is not supported for new Bridge installs.
   See [Claude authentication troubleshooting](docs/auth-troubleshooting.md).
 - CC Pocket is designed around self-hosting and minimal data collection. Supporter purchases
@@ -96,7 +96,7 @@ Service setup supports macOS launchd and Linux systemd.
 ## Development
 
 ```bash
-git clone https://github.com/K9i-0/ccpocket.git
+git clone https://github.com/sulnong/ccpocket.git
 cd ccpocket
 npm install
 cd apps/mobile && flutter pub get && cd ../..
@@ -119,6 +119,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 [FSL-1.1-MIT](LICENSE): Source available. Converts to MIT on 2028-03-17.
 
-The repository includes a Bridge Redistribution Exception for `@ccpocket/bridge`.
+The repository includes a Bridge Redistribution Exception for `@gotokens/bridge`.
 Unofficial Bridge redistributions and environment-specific forks are allowed, as long as
 they remain clearly unofficial and unsupported.

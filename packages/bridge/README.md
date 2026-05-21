@@ -1,13 +1,13 @@
-# @ccpocket/bridge
+# @gotokens/bridge
 
 Bridge server that connects Claude sessions powered by the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk) and [Codex CLI](https://github.com/openai/codex) to mobile devices via WebSocket.
 
-This is the server component of [ccpocket](https://github.com/K9i-0/ccpocket) — a mobile client for Claude and Codex.
+This is the server component of [ccpocket](https://github.com/sulnong/ccpocket) — a mobile client for Claude and Codex.
 
 ## Quick Start
 
 ```bash
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 A QR code will appear in your terminal. Scan it with the ccpocket mobile app to connect.
@@ -20,10 +20,10 @@ A QR code will appear in your terminal. Scan it with the ccpocket mobile app to 
 
 ```bash
 # Run directly (no install needed)
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 
 # Or install globally
-npm install -g @ccpocket/bridge
+npm install -g @gotokens/bridge
 ccpocket-bridge
 
 # Show CLI help or version
@@ -68,16 +68,16 @@ variables are required.
 
 ```bash
 # Example: custom port with API key
-BRIDGE_PORT=9000 BRIDGE_API_KEY=my-secret npx @ccpocket/bridge@latest
+BRIDGE_PORT=9000 BRIDGE_API_KEY=my-secret npx @gotokens/bridge@latest
 
 # Example: expose Bridge through a reverse proxy / ngrok
-BRIDGE_PUBLIC_WS_URL=wss://example.ngrok-free.app npx @ccpocket/bridge@latest
+BRIDGE_PUBLIC_WS_URL=wss://example.ngrok-free.app npx @gotokens/bridge@latest
 
 # Example: same setting via CLI flag
 ccpocket-bridge --public-ws-url wss://example.ngrok-free.app
 
 # Example: disable mDNS advertisement
-BRIDGE_DISABLE_MDNS=1 npx @ccpocket/bridge@latest
+BRIDGE_DISABLE_MDNS=1 npx @gotokens/bridge@latest
 # or via CLI flag
 ccpocket-bridge --no-mdns
 ```
@@ -100,7 +100,7 @@ For an official-style open relay, users only need the relay URL:
 
 ```bash
 BRIDGE_RELAY_URL=wss://relay.example.com \
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 Or with CLI flags:
@@ -128,7 +128,7 @@ Then run the Bridge on your computer with the matching token:
 ```bash
 BRIDGE_RELAY_URL=wss://relay.example.com \
 BRIDGE_RELAY_TOKEN=change-me \
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 Or with CLI flags:
@@ -158,7 +158,7 @@ Shell:
 set -a
 . ~/.ccpocket/bridge.env
 set +a
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 Installed package:
@@ -185,7 +185,7 @@ app-server mode:
 ```bash
 BRIDGE_CODEX_APP_SERVER_MODE=managed \
 BRIDGE_CODEX_SHARED_APP_SERVER_URL=ws://127.0.0.1:8767 \
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 Then start or resume a Codex session from CC Pocket. When the session is ready,
@@ -221,7 +221,7 @@ future.
 Run the built-in doctor command to verify your environment:
 
 ```bash
-npx @ccpocket/bridge@latest doctor
+npx @gotokens/bridge@latest doctor
 ```
 
 It checks Node.js, Git, CLI providers, macOS permissions (Screen Recording, Keychain), network connectivity, and more.

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `@ccpocket/bridge` will be documented in this file.
+All notable changes to `@gotokens/bridge` will be documented in this file.
 
 ## [1.61.1] - 2026-05-20
 

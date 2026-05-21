@@ -6,7 +6,7 @@
   "author": "K9i",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/K9i-0/ccpocket.git"
+    "url": "git+https://github.com/sulnong/ccpocket.git"
   },
   "workspaces": [
     "packages/*"

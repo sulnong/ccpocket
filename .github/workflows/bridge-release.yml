@@ -96,5 +96,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            --title "@ccpocket/bridge ${{ steps.version.outputs.version }}" \
+            --title "@gotokens/bridge ${{ steps.version.outputs.version }}" \
             --notes-file /tmp/release-notes.md
