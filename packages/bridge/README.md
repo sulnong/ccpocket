@@ -40,8 +40,8 @@ ccpocket-bridge --version
 | `BRIDGE_API_KEY` | (none) | API key authentication (enabled when set) |
 | `BRIDGE_ALLOWED_DIRS` | `$HOME` | Comma-separated list of project directories the Bridge may access |
 | `BRIDGE_PUBLIC_WS_URL` | (none) | Public `ws://` / `wss://` URL used for startup deep link and QR code |
-| `BRIDGE_RELAY_URL` | (none) | Public `ws://` / `wss://` base URL of a trusted self-hosted relay |
-| `BRIDGE_RELAY_TOKEN` | (none) | Admin token used by this Bridge to register with the relay |
+| `BRIDGE_RELAY_URL` | (none) | Public `ws://` / `wss://` base URL of a relay |
+| `BRIDGE_RELAY_TOKEN` | (none) | Optional admin token used only when the relay requires trusted self-hosted registration |
 | `BRIDGE_RELAY_ROOM_ID` | random | Optional stable relay room id |
 | `BRIDGE_RELAY_ROOM_SECRET` | random | Optional stable relay room secret used by the app connection |
 | `BRIDGE_CODEX_APP_SERVER_MODE` | `private` | Experimental Codex app-server mode: `private`, `managed`, or `external` |
@@ -96,7 +96,26 @@ Bridge still runs on your own computer. This is useful when the phone and
 computer are not on the same reachable network and you do not want to set up
 Tailscale.
 
-Run a trusted relay server on a public host:
+For an official-style open relay, users only need the relay URL:
+
+```bash
+BRIDGE_RELAY_URL=wss://relay.example.com \
+npx @ccpocket/bridge@latest
+```
+
+Or with CLI flags:
+
+```bash
+ccpocket-bridge --relay-url wss://relay.example.com
+```
+
+When registration succeeds, the Bridge prints a relay deep link and QR code.
+The app connects to a path like `wss://relay.example.com/r/<roomId>` with the
+room secret in the existing `token` query parameter. Users do not need to handle
+relay admin tokens in this mode.
+
+For a trusted self-hosted relay, run the relay server on a public host with an
+admin token:
 
 ```bash
 RELAY_ADMIN_TOKEN=change-me \
@@ -104,7 +123,7 @@ RELAY_PUBLIC_URL=wss://relay.example.com \
 npm run relay
 ```
 
-Then run the Bridge on your computer and point it at that relay:
+Then run the Bridge on your computer with the matching token:
 
 ```bash
 BRIDGE_RELAY_URL=wss://relay.example.com \
@@ -120,15 +139,42 @@ ccpocket-bridge \
   --relay-token change-me
 ```
 
-When registration succeeds, the Bridge prints a relay deep link and QR code.
-The app connects to a path like `wss://relay.example.com/r/<roomId>` with the
-room secret in the existing `token` query parameter. Existing direct LAN,
-Tailscale, mDNS, and `BRIDGE_PUBLIC_WS_URL` flows continue to work unchanged.
+Existing direct LAN, Tailscale, mDNS, and `BRIDGE_PUBLIC_WS_URL` flows continue
+to work unchanged.
+
+### Loading a Bridge env file
+
+The Bridge reads normal process environment variables. It does not parse `.env`
+files by itself, so load the file with your shell, service manager, or
+container runtime.
+
+```bash
+cp packages/bridge/.env.example ~/.ccpocket/bridge.env
+```
+
+Shell:
+
+```bash
+set -a
+. ~/.ccpocket/bridge.env
+set +a
+npx @ccpocket/bridge@latest
+```
+
+Installed package:
+
+```bash
+set -a
+. ~/.ccpocket/bridge.env
+set +a
+ccpocket-bridge
+```
 
 Security model: relay v1 is a trusted relay. It forwards WebSocket frames and
 can see plaintext ccpocket protocol traffic. Run it only on infrastructure you
 trust, use `wss://` in production, and treat `RELAY_ADMIN_TOKEN` plus the room
-secret as credentials. This is not end-to-end encrypted.
+secret as credentials when trusted self-hosted registration is enabled. This is
+not end-to-end encrypted.
 
 ## Experimental: Join a CC Pocket Codex Session from Codex CLI
 

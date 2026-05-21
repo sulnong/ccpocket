@@ -9,7 +9,7 @@ export interface RelayCredentials {
 
 export interface BridgeRelayClientOptions {
   relayUrl: string;
-  relayToken: string;
+  relayToken?: string;
   localBridgeUrl: string;
   roomId?: string;
   roomSecret?: string;
@@ -43,11 +43,14 @@ export function createRelayCredentials(): RelayCredentials {
 
 export function buildRelayRegistrationUrl(
   relayUrl: string,
-  relayToken: string,
+  relayToken?: string,
 ): string {
   const url = new URL(relayUrl);
   url.pathname = `${url.pathname.replace(/\/+$/, "")}/bridge/register`;
-  url.searchParams.set("token", relayToken);
+  const token = relayToken?.trim();
+  if (token) {
+    url.searchParams.set("token", token);
+  }
   return url.toString();
 }
 

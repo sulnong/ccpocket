@@ -221,22 +221,16 @@ export async function startServer() {
     const relayUrl = process.env.BRIDGE_RELAY_URL?.trim();
     if (relayUrl) {
       const relayToken = process.env.BRIDGE_RELAY_TOKEN?.trim();
-      if (!relayToken) {
-        console.warn(
-          "[bridge] Relay disabled: BRIDGE_RELAY_TOKEN is required when BRIDGE_RELAY_URL is set",
-        );
-      } else {
-        relayClient = startBridgeRelayClient({
-          relayUrl,
-          relayToken,
-          localBridgeUrl: `ws://127.0.0.1:${PORT}${
-            API_KEY ? `?token=${encodeURIComponent(API_KEY)}` : ""
-          }`,
-          roomId: process.env.BRIDGE_RELAY_ROOM_ID,
-          roomSecret: process.env.BRIDGE_RELAY_ROOM_SECRET,
-          bridgeVersion: getVersionInfo(startedAt).version,
-        });
-      }
+      relayClient = startBridgeRelayClient({
+        relayUrl,
+        relayToken,
+        localBridgeUrl: `ws://127.0.0.1:${PORT}${
+          API_KEY ? `?token=${encodeURIComponent(API_KEY)}` : ""
+        }`,
+        roomId: process.env.BRIDGE_RELAY_ROOM_ID,
+        roomSecret: process.env.BRIDGE_RELAY_ROOM_SECRET,
+        bridgeVersion: getVersionInfo(startedAt).version,
+      });
     }
   });
 

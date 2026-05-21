@@ -67,15 +67,15 @@ describe("parseCliArgs", () => {
     const parsed = parseCliArgs([
       "--relay-url",
       "wss://relay.example.com",
-      "--relay-token=admin-secret",
+      "--relay-token=test-key-admin",
       "--relay-room-id",
       "room-1",
-      "--relay-room-secret=room-secret",
+      "--relay-room-secret=test-key-room",
     ]);
 
     expect(parseFlag(parsed, "relay-url")).toBe("wss://relay.example.com");
-    expect(parseFlag(parsed, "relay-token")).toBe("admin-secret");
+    expect(parseFlag(parsed, "relay-token")).toBe("test-key-admin");
     expect(parseFlag(parsed, "relay-room-id")).toBe("room-1");
-    expect(parseFlag(parsed, "relay-room-secret")).toBe("room-secret");
+    expect(parseFlag(parsed, "relay-room-secret")).toBe("test-key-room");
   });
 });

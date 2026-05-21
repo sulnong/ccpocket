@@ -29,9 +29,9 @@ Options:
       --api-key <key>   Enable API key authentication
       --public-ws-url <url>
                          Public ws:// or wss:// URL used in QR codes
-      --relay-url <url> Public ws:// or wss:// relay URL for self-hosted relay mode
+      --relay-url <url> Public ws:// or wss:// relay URL
       --relay-token <token>
-                         Admin token used to register this Bridge with the relay
+                         Optional admin token for trusted self-hosted relay registration
       --relay-room-id <id>
                          Optional stable relay room id
       --relay-room-secret <secret>
@@ -43,7 +43,8 @@ Setup options:
 
 Configuration can also be provided with BRIDGE_PORT, BRIDGE_HOST,
 BRIDGE_API_KEY, BRIDGE_ALLOWED_DIRS, BRIDGE_PUBLIC_WS_URL,
-BRIDGE_RELAY_URL, BRIDGE_RELAY_TOKEN, and BRIDGE_DISABLE_MDNS.`);
+BRIDGE_RELAY_URL, BRIDGE_RELAY_TOKEN, BRIDGE_RELAY_ROOM_ID,
+BRIDGE_RELAY_ROOM_SECRET, and BRIDGE_DISABLE_MDNS.`);
 }
 
 if (parsed.helpRequested) {
@@ -77,6 +78,10 @@ if (parsed.helpRequested) {
     host: parseFlag(parsed, "host"),
     apiKey: parseFlag(parsed, "api-key"),
     publicWsUrl: parseFlag(parsed, "public-ws-url"),
+    relayUrl: parseFlag(parsed, "relay-url"),
+    relayToken: parseFlag(parsed, "relay-token"),
+    relayRoomId: parseFlag(parsed, "relay-room-id"),
+    relayRoomSecret: parseFlag(parsed, "relay-room-secret"),
     codexAppServerMode: parseFlag(parsed, "codex-app-server-mode"),
     codexSharedAppServerUrl: parseFlag(parsed, "codex-shared-app-server-url"),
     codexAppServerPort: parseFlag(parsed, "codex-app-server-port"),

@@ -58,8 +58,14 @@ afterEach(async () => {
 
 describe("bridge relay client", () => {
   it("builds relay registration URL", () => {
-    expect(buildRelayRegistrationUrl("wss://relay.example.com/", "secret")).toBe(
-      "wss://relay.example.com/bridge/register?token=secret",
+    expect(
+      buildRelayRegistrationUrl("wss://relay.example.com/", "test-key-admin"),
+    ).toBe("wss://relay.example.com/bridge/register?token=test-key-admin");
+  });
+
+  it("omits registration token when relay token is not configured", () => {
+    expect(buildRelayRegistrationUrl("wss://relay.example.com/")).toBe(
+      "wss://relay.example.com/bridge/register",
     );
   });
 
@@ -93,7 +99,7 @@ describe("bridge relay client", () => {
         ws.send(JSON.stringify({
           type: "registered",
           roomId: "room-1",
-          secret: "room-secret",
+          secret: "test-key-room",
           appUrl: "ws://relay.test/r/room-1",
         }));
       });
@@ -102,10 +108,9 @@ describe("bridge relay client", () => {
     const log = vi.fn();
     const client = startBridgeRelayClient({
       relayUrl,
-      relayToken: "admin-secret",
       localBridgeUrl,
       roomId: "room-1",
-      roomSecret: "room-secret",
+      roomSecret: "test-key-room",
       bridgeVersion: "1.61.1",
       reconnectDelayMs: 10_000,
       log,
@@ -116,7 +121,7 @@ describe("bridge relay client", () => {
       expect(registered).toHaveBeenCalledWith({
         type: "register",
         roomId: "room-1",
-        secret: "room-secret",
+        secret: "test-key-room",
         bridgeVersion: "1.61.1",
       });
     });
@@ -129,7 +134,7 @@ describe("bridge relay client", () => {
 
     expect(localBridgeSocket).toBeDefined();
     expect(log).toHaveBeenCalledWith(
-      expect.stringContaining("ccpocket://connect?url=ws%3A%2F%2Frelay.test%2Fr%2Froom-1&token=room-secret"),
+      expect.stringContaining("ccpocket://connect?url=ws%3A%2F%2Frelay.test%2Fr%2Froom-1&token=test-key-room"),
     );
   });
 });

@@ -30,6 +30,10 @@ const SERVICE_PATH =
   "/home/testuser/.config/systemd/user/ccpocket-bridge.service";
 const originalBridgeEnv = {
   publicWsUrl: process.env.BRIDGE_PUBLIC_WS_URL,
+  relayUrl: process.env.BRIDGE_RELAY_URL,
+  relayToken: process.env.BRIDGE_RELAY_TOKEN,
+  relayRoomId: process.env.BRIDGE_RELAY_ROOM_ID,
+  relayRoomSecret: process.env.BRIDGE_RELAY_ROOM_SECRET,
   codexAppServerMode: process.env.BRIDGE_CODEX_APP_SERVER_MODE,
   codexSharedAppServerUrl: process.env.BRIDGE_CODEX_SHARED_APP_SERVER_URL,
   codexAppServerPort: process.env.BRIDGE_CODEX_APP_SERVER_PORT,
@@ -76,6 +80,8 @@ describe("setup-systemd", () => {
       expect(content).toContain("Restart=on-failure");
       expect(content).toContain("WantedBy=default.target");
       expect(content).not.toContain("BRIDGE_API_KEY");
+      expect(content).not.toContain("BRIDGE_RELAY_URL");
+      expect(content).not.toContain("BRIDGE_RELAY_TOKEN");
       expect(content).not.toContain("BRIDGE_CODEX_APP_SERVER_MODE");
       expect(content).not.toContain("BRIDGE_CODEX_SHARED_APP_SERVER_URL");
     });
@@ -106,6 +112,37 @@ describe("setup-systemd", () => {
         "Environment=BRIDGE_PUBLIC_WS_URL=wss://flag.example.com",
       );
       expect(content).not.toContain("wss://env.example.com");
+    });
+
+    it("includes relay startup options when provided", () => {
+      setupSystemd({
+        relayUrl: "wss://relay.example.com",
+        relayToken: "test-key-admin",
+        relayRoomId: "room-1",
+        relayRoomSecret: "test-key-room",
+      });
+
+      const content = mockWriteFileSync.mock.calls[0]![1] as string;
+      expect(content).toContain(
+        "Environment=BRIDGE_RELAY_URL=wss://relay.example.com",
+      );
+      expect(content).toContain("Environment=BRIDGE_RELAY_TOKEN=test-key-admin");
+      expect(content).toContain("Environment=BRIDGE_RELAY_ROOM_ID=room-1");
+      expect(content).toContain(
+        "Environment=BRIDGE_RELAY_ROOM_SECRET=test-key-room",
+      );
+    });
+
+    it("includes relay URL from environment without requiring relay token", () => {
+      process.env.BRIDGE_RELAY_URL = "wss://relay.example.com";
+
+      setupSystemd({});
+
+      const content = mockWriteFileSync.mock.calls[0]![1] as string;
+      expect(content).toContain(
+        "Environment=BRIDGE_RELAY_URL=wss://relay.example.com",
+      );
+      expect(content).not.toContain("BRIDGE_RELAY_TOKEN");
     });
 
     it("does not persist shared app-server URL without an explicit mode", () => {
@@ -301,6 +338,10 @@ describe("setup-systemd", () => {
 
 function clearBridgeEnv(): void {
   delete process.env.BRIDGE_PUBLIC_WS_URL;
+  delete process.env.BRIDGE_RELAY_URL;
+  delete process.env.BRIDGE_RELAY_TOKEN;
+  delete process.env.BRIDGE_RELAY_ROOM_ID;
+  delete process.env.BRIDGE_RELAY_ROOM_SECRET;
   delete process.env.BRIDGE_CODEX_APP_SERVER_MODE;
   delete process.env.BRIDGE_CODEX_SHARED_APP_SERVER_URL;
   delete process.env.BRIDGE_CODEX_APP_SERVER_PORT;
@@ -309,6 +350,13 @@ function clearBridgeEnv(): void {
 
 function restoreBridgeEnv(): void {
   restoreEnvVar("BRIDGE_PUBLIC_WS_URL", originalBridgeEnv.publicWsUrl);
+  restoreEnvVar("BRIDGE_RELAY_URL", originalBridgeEnv.relayUrl);
+  restoreEnvVar("BRIDGE_RELAY_TOKEN", originalBridgeEnv.relayToken);
+  restoreEnvVar("BRIDGE_RELAY_ROOM_ID", originalBridgeEnv.relayRoomId);
+  restoreEnvVar(
+    "BRIDGE_RELAY_ROOM_SECRET",
+    originalBridgeEnv.relayRoomSecret,
+  );
   restoreEnvVar(
     "BRIDGE_CODEX_APP_SERVER_MODE",
     originalBridgeEnv.codexAppServerMode,
