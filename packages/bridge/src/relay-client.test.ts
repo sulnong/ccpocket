@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { AddressInfo } from "node:net";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WebSocketServer, WebSocket } from "ws";
 import {
   buildRelayRegistrationUrl,
@@ -9,6 +9,7 @@ import {
 } from "./relay-client.js";
 
 const closeFns: Array<() => Promise<void>> = [];
+let consoleLogSpy: ReturnType<typeof vi.spyOn>;
 
 function closeHttpServer(server: ReturnType<typeof createServer>): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -44,7 +45,12 @@ function waitForMessage(ws: WebSocket): Promise<string> {
   });
 }
 
+beforeEach(() => {
+  consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+});
+
 afterEach(async () => {
+  consoleLogSpy.mockRestore();
   while (closeFns.length > 0) {
     await closeFns.pop()!();
   }

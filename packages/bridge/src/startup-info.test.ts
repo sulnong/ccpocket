@@ -149,4 +149,29 @@ describe("startup-info", () => {
       expect(mockQrToString).toHaveBeenCalled();
     });
   });
+
+  describe("printConnectionQr", () => {
+    it("prints a labelled relay deep link and QR code", async () => {
+      const { printConnectionQr } = await import("./startup-info.js");
+
+      await printConnectionQr({
+        title: "Relay Connection",
+        wsUrl: "wss://relay.example.com/r/room-1",
+        token: "room-secret",
+      });
+
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining("[bridge] ─── Relay Connection"),
+      );
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Deep Link: ccpocket://connect?url=wss%3A%2F%2Frelay.example.com%2Fr%2Froom-1&token=room-secret",
+        ),
+      );
+      expect(mockQrToString).toHaveBeenCalledWith(
+        "ccpocket://connect?url=wss%3A%2F%2Frelay.example.com%2Fr%2Froom-1&token=room-secret",
+        expect.objectContaining({ type: "terminal", small: true }),
+      );
+    });
+  });
 });

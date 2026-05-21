@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import WebSocket from "ws";
-import { buildConnectionUrl } from "./startup-info.js";
+import { buildConnectionUrl, printConnectionQr } from "./startup-info.js";
 
 export interface RelayCredentials {
   roomId: string;
@@ -182,6 +182,11 @@ export function startBridgeRelayClient(
       const deepLink = buildConnectionUrl(registered.appUrl, registered.secret);
       log(`[relay-client] Relay registered: ${registered.appUrl}`);
       log(`[relay-client] Deep Link: ${deepLink}`);
+      void printConnectionQr({
+        title: "Relay Connection",
+        wsUrl: registered.appUrl,
+        token: registered.secret,
+      });
 
       connectLocalBridge();
 

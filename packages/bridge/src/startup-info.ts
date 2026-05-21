@@ -60,6 +60,39 @@ export function buildConnectionUrl(
   return `ccpocket://connect?${params.toString()}`;
 }
 
+export async function printConnectionQr(params: {
+  title: string;
+  wsUrl: string;
+  token?: string;
+}): Promise<void> {
+  const deepLink = buildConnectionUrl(params.wsUrl, params.token);
+  const lines: string[] = [];
+  lines.push("");
+  lines.push(`[bridge] ─── ${params.title} ───────────────────────────`);
+  lines.push(`[bridge]   URL:        ${params.wsUrl}`);
+  lines.push("");
+  lines.push(`[bridge]   Deep Link: ${deepLink}`);
+  lines.push("");
+  lines.push("[bridge]   Scan QR code with ccpocket app:");
+  console.log(lines.join("\n"));
+
+  try {
+    const qrText = await QRCode.toString(deepLink, {
+      type: "terminal",
+      small: true,
+    });
+    const indented = qrText
+      .split("\n")
+      .map((line) => `           ${line}`)
+      .join("\n");
+    console.log(indented);
+  } catch {
+    console.log("[bridge]   (QR code generation failed)");
+  }
+
+  console.log("[bridge] ───────────────────────────────────────────────");
+}
+
 export async function printStartupInfo(
   port: number,
   _host: string,
