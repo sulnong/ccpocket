@@ -35,7 +35,7 @@ Markdown、補完、音声入力、画像添付でプロンプトを作成。MCP
 CC Pocket は無料で使えます。継続開発を応援したい方向けに、任意の単発・月額 Supporter 購入を用意しています。
 
 セットアップ方法
-1. Bridge Server をインストール: npx @ccpocket/bridge@latest
+1. Bridge Server をインストール: npx @gotokens/bridge@latest
 2. アプリから QR コードをスキャン、または URL を入力して接続
 3. スマホ、タブレット、Mac からコーディング開始
 

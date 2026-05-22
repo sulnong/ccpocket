@@ -142,13 +142,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupStep1Title => 'Start the Bridge server';
 
   @override
-  String get setupStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get setupStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get setupStep2Title => 'For persistent startup, register as service';
 
   @override
-  String get setupStep2Command => 'npx --yes @ccpocket/bridge@latest setup';
+  String get setupStep2Command => 'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get setupNetworkHint =>
@@ -544,7 +544,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Run the setup command on the target machine.';
 
   @override
-  String get bridgeUpdateSetupCommand => 'npx @ccpocket/bridge@latest setup';
+  String get bridgeUpdateSetupCommand => 'npx @gotokens/bridge@latest setup';
 
   @override
   String get stopServer => 'Stop Server';
@@ -1297,14 +1297,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideBridgeStep1 => 'Run with npx (recommended)';
 
   @override
-  String get guideBridgeStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get guideBridgeStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get guideBridgeStep2 => 'Or install globally';
 
   @override
   String get guideBridgeStep2Command =>
-      'npm install -g @ccpocket/bridge\nccpocket-bridge';
+      'npm install -g @gotokens/bridge\ngotokens-bridge';
 
   @override
   String get guideBridgeQrNote =>
@@ -1377,7 +1377,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideLaunchdCommandValue =>
-      'npx --yes @ccpocket/bridge@latest setup';
+      'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get guideLaunchdRecommendation =>

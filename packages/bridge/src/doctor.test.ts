@@ -28,6 +28,7 @@ const {
   checkTailscale,
   checkDataDirectory,
   checkLaunchdService,
+  checkSystemdService,
   checkScreenRecording,
   checkKeychainAccess,
   printReport,
@@ -204,6 +205,42 @@ describe("doctor checks", () => {
     });
   });
 
+  describe("service checks", () => {
+    it("suggests the gotokens bridge CLI when launchd is not registered", async () => {
+      const originalPlatform = process.platform;
+      Object.defineProperty(process, "platform", { value: "darwin" });
+      try {
+        mockExecSync.mockReturnValue("");
+
+        const result = await checkLaunchdService();
+
+        expect(result.remediation).toBe("Register with: gotokens-bridge setup");
+      } finally {
+        Object.defineProperty(process, "platform", { value: originalPlatform });
+      }
+    });
+
+    it("checks the gotokens systemd service name", async () => {
+      const originalPlatform = process.platform;
+      Object.defineProperty(process, "platform", { value: "linux" });
+      try {
+        mockExecSync.mockImplementation(() => {
+          throw new Error("not registered");
+        });
+
+        const result = await checkSystemdService();
+
+        expect(mockExecSync).toHaveBeenCalledWith(
+          "systemctl --user is-active gotokens-bridge.service",
+          expect.any(Object),
+        );
+        expect(result.remediation).toBe("Register with: gotokens-bridge setup");
+      } finally {
+        Object.defineProperty(process, "platform", { value: originalPlatform });
+      }
+    });
+  });
+
   describe("checkScreenRecording", () => {
     let originalPlatform: string;
     beforeEach(() => {
@@ -306,6 +343,20 @@ describe("doctor checks", () => {
         allRequiredPassed: true,
       };
       expect(() => printReport(report)).not.toThrow();
+    });
+
+    it("prints the gotokens bridge doctor title", () => {
+      const report: DoctorReport = {
+        results: [],
+        allRequiredPassed: true,
+      };
+      const log = vi.spyOn(console, "log").mockImplementation(() => {});
+      try {
+        printReport(report);
+        expect(log).toHaveBeenCalledWith("gotokens-bridge doctor");
+      } finally {
+        log.mockRestore();
+      }
     });
   });
 });

@@ -42,9 +42,9 @@
     <true/>
 
     <key>StandardOutPath</key>
-    <string>/tmp/ccpocket-bridge.stdout.log</string>
+    <string>/tmp/gotokens-bridge.stdout.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/tmp/ccpocket-bridge.stderr.log</string>
+    <string>/tmp/gotokens-bridge.stderr.log</string>
 </dict>
 </plist>

@@ -62,7 +62,7 @@ enum MockDoctorScenario: String, CaseIterable {
                     ProviderResult(name: "Claude Code CLI", installed: false, version: nil, authenticated: false, authMessage: nil, remediation: "npm install -g @anthropic-ai/claude-code"),
                     ProviderResult(name: "Codex CLI", installed: false, version: nil, authenticated: false, authMessage: nil, remediation: "npm install -g @openai/codex"),
                 ]),
-                CheckResult(name: "Bridge Server", status: "fail", message: "Not installed", category: "required", remediation: "npm install -g @ccpocket/bridge", providers: nil),
+                CheckResult(name: "Bridge Server", status: "fail", message: "Not installed", category: "required", remediation: "npm install -g @gotokens/bridge", providers: nil),
                 CheckResult(name: "launchd service", status: "skip", message: "Bridge not installed", category: "optional", remediation: "Set up Bridge as a launchd service", providers: nil),
             ],
             allRequiredPassed: false
@@ -121,7 +121,7 @@ enum MockDoctorScenario: String, CaseIterable {
                     ProviderResult(name: "Claude Code CLI", installed: true, version: "1.0.33", authenticated: true, authMessage: "Authenticated", remediation: nil),
                     ProviderResult(name: "Codex CLI", installed: false, version: nil, authenticated: false, authMessage: nil, remediation: "npm install -g @openai/codex"),
                 ]),
-                CheckResult(name: "Bridge Server", status: "fail", message: "Not installed", category: "required", remediation: "npm install -g @ccpocket/bridge", providers: nil),
+                CheckResult(name: "Bridge Server", status: "fail", message: "Not installed", category: "required", remediation: "npm install -g @gotokens/bridge", providers: nil),
                 CheckResult(name: "launchd service", status: "warn", message: "Registered but not running", category: "optional", remediation: "Start the service: launchctl start com.ccpocket.bridge", providers: nil),
             ],
             allRequiredPassed: false

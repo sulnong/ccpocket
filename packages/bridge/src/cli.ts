@@ -9,11 +9,11 @@ const args = process.argv.slice(2);
 const parsed = parseCliArgs(args);
 
 function printHelp(): void {
-  console.log(`ccpocket-bridge
+  console.log(`gotokens-bridge
 
 Usage:
-  ccpocket-bridge [options]
-  ccpocket-bridge <command> [options]
+  gotokens-bridge [options]
+  gotokens-bridge <command> [options]
 
 Commands:
   help                  Show this help
@@ -50,7 +50,7 @@ BRIDGE_RELAY_ROOM_SECRET, and BRIDGE_DISABLE_MDNS.`);
 if (parsed.helpRequested) {
   printHelp();
 } else if (parsed.versionRequested) {
-  console.log(`ccpocket-bridge ${getPackageVersion()}`);
+  console.log(`gotokens-bridge ${getPackageVersion()}`);
 } else if (parsed.command === "doctor") {
   // Configure global fetch proxy before any network calls
   setupProxy();

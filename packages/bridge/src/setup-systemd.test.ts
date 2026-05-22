@@ -27,7 +27,7 @@ vi.mock("node:os", () => ({
 const { setupSystemd, uninstallSystemd } = await import("./setup-systemd.js");
 
 const SERVICE_PATH =
-  "/home/testuser/.config/systemd/user/ccpocket-bridge.service";
+  "/home/testuser/.config/systemd/user/gotokens-bridge.service";
 const originalBridgeEnv = {
   publicWsUrl: process.env.BRIDGE_PUBLIC_WS_URL,
   relayUrl: process.env.BRIDGE_RELAY_URL,
@@ -239,8 +239,8 @@ describe("setup-systemd", () => {
 
       expect(systemctlCalls).toEqual([
         "systemctl --user daemon-reload",
-        'systemctl --user enable "ccpocket-bridge"',
-        'systemctl --user restart "ccpocket-bridge"',
+        'systemctl --user enable "gotokens-bridge"',
+        'systemctl --user restart "gotokens-bridge"',
       ]);
     });
 
@@ -304,12 +304,8 @@ describe("setup-systemd", () => {
       uninstallSystemd();
 
       const allCmds = mockExecSync.mock.calls.map((c) => c[0] as string);
-      expect(allCmds).toContain(
-        'systemctl --user stop "ccpocket-bridge"',
-      );
-      expect(allCmds).toContain(
-        'systemctl --user disable "ccpocket-bridge"',
-      );
+      expect(allCmds).toContain('systemctl --user stop "gotokens-bridge"');
+      expect(allCmds).toContain('systemctl --user disable "gotokens-bridge"');
       expect(allCmds).toContain("systemctl --user daemon-reload");
       expect(mockUnlinkSync).toHaveBeenCalledWith(SERVICE_PATH);
     });

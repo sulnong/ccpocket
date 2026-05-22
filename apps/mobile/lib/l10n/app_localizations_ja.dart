@@ -140,13 +140,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get setupStep1Title => 'Bridge Server を起動';
 
   @override
-  String get setupStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get setupStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get setupStep2Title => '常時起動したい場合はサービス登録';
 
   @override
-  String get setupStep2Command => 'npx --yes @ccpocket/bridge@latest setup';
+  String get setupStep2Command => 'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get setupNetworkHint =>
@@ -534,7 +534,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bridgeUpdateSetupRunCommand => '接続先マシンでセットアップコマンドを実行しておきます。';
 
   @override
-  String get bridgeUpdateSetupCommand => 'npx @ccpocket/bridge@latest setup';
+  String get bridgeUpdateSetupCommand => 'npx @gotokens/bridge@latest setup';
 
   @override
   String get stopServer => 'サーバーを停止';
@@ -1243,14 +1243,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get guideBridgeStep1 => 'npx で実行（推奨）';
 
   @override
-  String get guideBridgeStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get guideBridgeStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get guideBridgeStep2 => 'またはグローバルインストール';
 
   @override
   String get guideBridgeStep2Command =>
-      'npm install -g @ccpocket/bridge\nccpocket-bridge';
+      'npm install -g @gotokens/bridge\ngotokens-bridge';
 
   @override
   String get guideBridgeQrNote => '起動するとターミナルに QR コードが表示されます';
@@ -1320,7 +1320,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get guideLaunchdCommandValue =>
-      'npx --yes @ccpocket/bridge@latest setup';
+      'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get guideLaunchdRecommendation =>

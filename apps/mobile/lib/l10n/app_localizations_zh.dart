@@ -140,13 +140,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupStep1Title => '启动 Bridge 服务器';
 
   @override
-  String get setupStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get setupStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get setupStep2Title => '如需常驻运行，请注册为服务';
 
   @override
-  String get setupStep2Command => 'npx --yes @ccpocket/bridge@latest setup';
+  String get setupStep2Command => 'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get setupNetworkHint => '请确认两台设备位于同一网络中（或使用 Tailscale）。';
@@ -529,7 +529,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bridgeUpdateSetupRunCommand => '在目标机器上运行设置命令。';
 
   @override
-  String get bridgeUpdateSetupCommand => 'npx @ccpocket/bridge@latest setup';
+  String get bridgeUpdateSetupCommand => 'npx @gotokens/bridge@latest setup';
 
   @override
   String get stopServer => '停止服务器';
@@ -1230,14 +1230,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get guideBridgeStep1 => '使用 npx 运行（推荐）';
 
   @override
-  String get guideBridgeStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get guideBridgeStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get guideBridgeStep2 => '或全局安装';
 
   @override
   String get guideBridgeStep2Command =>
-      'npm install -g @ccpocket/bridge\nccpocket-bridge';
+      'npm install -g @gotokens/bridge\ngotokens-bridge';
 
   @override
   String get guideBridgeQrNote => '启动后，终端中会显示二维码';
@@ -1305,7 +1305,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get guideLaunchdCommandValue =>
-      'npx --yes @ccpocket/bridge@latest setup';
+      'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get guideLaunchdRecommendation => '建议先通过手动启动验证一切正常，再在稳定后注册为服务。';

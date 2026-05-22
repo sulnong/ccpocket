@@ -350,7 +350,7 @@ class ChatMessageHandler {
               ErrorMessage(
                 message:
                     'This feature requires a newer Bridge server.\n'
-                    'Run: npm update -g @ccpocket/bridge',
+                    'Run: npm update -g @gotokens/bridge',
                 errorCode: 'bridge_update_required',
               ),
             ),

@@ -11,6 +11,11 @@ export interface BridgeIdentity {
   updatedAt: string;
 }
 
+export interface BridgeRelayIdentity {
+  roomId: string;
+  roomSecret: string;
+}
+
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{20,}$/;
 
 function randomToken(bytes: number): string {
@@ -63,4 +68,14 @@ export async function loadOrCreateBridgeIdentity(
   await writeFile(tmp, JSON.stringify(identity, null, 2), "utf-8");
   await rename(tmp, filePath);
   return identity;
+}
+
+export function resolveBridgeRelayIdentity(
+  identity: BridgeIdentity,
+  env: NodeJS.ProcessEnv = process.env,
+): BridgeRelayIdentity {
+  return {
+    roomId: env["BRIDGE_RELAY_ROOM_ID"]?.trim() || identity.roomId,
+    roomSecret: env["BRIDGE_RELAY_ROOM_SECRET"]?.trim() || identity.roomSecret,
+  };
 }

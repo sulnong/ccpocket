@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   getDefaultBridgeIdentityPath,
   loadOrCreateBridgeIdentity,
+  resolveBridgeRelayIdentity,
 } from "./bridge-identity.js";
 
 let tempDir: string;
@@ -69,5 +70,53 @@ describe("bridge identity", () => {
     expect(identity.version).toBe(1);
     expect(identity.roomId).toMatch(/^[A-Za-z0-9_-]{20,}$/);
     expect(identity.roomSecret).toMatch(/^[A-Za-z0-9_-]{40,}$/);
+  });
+
+  it("uses persisted identity when relay env overrides are blank", () => {
+    const roomSecret = [
+      "stable-room",
+      "fixture-12345678901234567890",
+    ].join("-");
+    const identity = {
+      version: 1 as const,
+      roomId: "stable-room-id-123456",
+      roomSecret,
+      createdAt: "2026-05-21T00:00:00.000Z",
+      updatedAt: "2026-05-21T00:00:00.000Z",
+    };
+
+    expect(resolveBridgeRelayIdentity(identity, {
+      BRIDGE_RELAY_ROOM_ID: " ",
+      BRIDGE_RELAY_ROOM_SECRET: "",
+    })).toEqual({
+      roomId: identity.roomId,
+      roomSecret: identity.roomSecret,
+    });
+  });
+
+  it("trims explicit relay identity overrides", () => {
+    const roomSecret = [
+      "stable-room",
+      "fixture-12345678901234567890",
+    ].join("-");
+    const customRoomSecret = [
+      "custom-room",
+      "fixture-12345678901234567890",
+    ].join("-");
+    const identity = {
+      version: 1 as const,
+      roomId: "stable-room-id-123456",
+      roomSecret,
+      createdAt: "2026-05-21T00:00:00.000Z",
+      updatedAt: "2026-05-21T00:00:00.000Z",
+    };
+
+    expect(resolveBridgeRelayIdentity(identity, {
+      BRIDGE_RELAY_ROOM_ID: " custom-room-id-123456 ",
+      BRIDGE_RELAY_ROOM_SECRET: ` ${customRoomSecret} `,
+    })).toEqual({
+      roomId: "custom-room-id-123456",
+      roomSecret: customRoomSecret,
+    });
   });
 });

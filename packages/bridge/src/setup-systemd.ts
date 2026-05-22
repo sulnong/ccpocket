@@ -7,7 +7,7 @@ import {
   readCodexSharedAppServerUrl,
 } from "./codex-app-server-config.js";
 
-const SERVICE_NAME = "ccpocket-bridge";
+const SERVICE_NAME = "gotokens-bridge";
 
 function getServiceDir(): string {
   const dir = join(homedir(), ".config", "systemd", "user");
@@ -71,11 +71,12 @@ export function setupSystemd(opts: SetupOptions): void {
   const publicWsUrl =
     opts.publicWsUrl ?? process.env.BRIDGE_PUBLIC_WS_URL ?? "";
   const relayUrl = opts.relayUrl ?? process.env.BRIDGE_RELAY_URL ?? "";
-  const relayToken = opts.relayToken ?? process.env.BRIDGE_RELAY_TOKEN ?? "";
+  const relayToken =
+    opts.relayToken ?? process.env.BRIDGE_RELAY_TOKEN?.trim() ?? "";
   const relayRoomId =
-    opts.relayRoomId ?? process.env.BRIDGE_RELAY_ROOM_ID ?? "";
+    opts.relayRoomId ?? process.env.BRIDGE_RELAY_ROOM_ID?.trim() ?? "";
   const relayRoomSecret =
-    opts.relayRoomSecret ?? process.env.BRIDGE_RELAY_ROOM_SECRET ?? "";
+    opts.relayRoomSecret ?? process.env.BRIDGE_RELAY_ROOM_SECRET?.trim() ?? "";
   const codexAppServerMode =
     opts.codexAppServerMode ?? process.env.BRIDGE_CODEX_APP_SERVER_MODE ?? "";
   const legacyCodexAppServerPort =
@@ -182,7 +183,7 @@ WantedBy=default.target
     }
   } catch {
     console.log(
-      "==> Service registered (start may have failed — check logs with: journalctl --user -u ccpocket-bridge)",
+      "==> Service registered (start may have failed — check logs with: journalctl --user -u gotokens-bridge)",
     );
   }
 

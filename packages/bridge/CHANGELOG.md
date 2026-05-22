@@ -2,6 +2,16 @@
 
 All notable changes to `@gotokens/bridge` will be documented in this file.
 
+## [1.61.3] - 2026-05-22
+
+### Changed
+- Publish `gotokens-bridge` as the installed CLI command for `@gotokens/bridge`.
+- Update Bridge setup docs and app setup commands to use `@gotokens/bridge`.
+- Use `gotokens-bridge` for Linux systemd service names and generated service logs.
+
+### Fixed
+- Treat blank relay room environment overrides as unset so the persisted Bridge identity is reused across restarts.
+
 ## [1.61.2] - 2026-05-21
 
 ### Changed

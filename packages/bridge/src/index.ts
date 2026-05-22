@@ -25,7 +25,10 @@ import {
   startBridgeRelayClient,
   type BridgeRelayClient,
 } from "./relay-client.js";
-import { loadOrCreateBridgeIdentity } from "./bridge-identity.js";
+import {
+  loadOrCreateBridgeIdentity,
+  resolveBridgeRelayIdentity,
+} from "./bridge-identity.js";
 
 export async function startServer() {
   const PORT = parseInt(process.env.BRIDGE_PORT ?? "8765", 10);
@@ -227,15 +230,15 @@ export async function startServer() {
     void loadOrCreateBridgeIdentity()
       .then((bridgeIdentity) => {
         const relayToken = process.env.BRIDGE_RELAY_TOKEN?.trim();
+        const relayIdentity = resolveBridgeRelayIdentity(bridgeIdentity);
         relayClient = startBridgeRelayClient({
           relayUrl,
           relayToken,
           localBridgeUrl: `ws://127.0.0.1:${PORT}${
             API_KEY ? `?token=${encodeURIComponent(API_KEY)}` : ""
           }`,
-          roomId: process.env.BRIDGE_RELAY_ROOM_ID ?? bridgeIdentity.roomId,
-          roomSecret:
-            process.env.BRIDGE_RELAY_ROOM_SECRET ?? bridgeIdentity.roomSecret,
+          roomId: relayIdentity.roomId,
+          roomSecret: relayIdentity.roomSecret,
           bridgeVersion: getVersionInfo(startedAt).version,
         });
       })

@@ -16,7 +16,7 @@ export class MdnsAdvertiser {
         this.stop();
       });
       this.service = this.bonjour.publish({
-        name: "ccpocket-bridge",
+        name: "gotokens-bridge",
         type: "ccpocket",
         protocol: "tcp",
         port,

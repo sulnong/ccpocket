@@ -35,7 +35,7 @@ OPTIONAL SUPPORTER
 CC Pocket remains fully usable for free. Optional one-time and monthly Supporter purchases are available if you want to support ongoing development.
 
 HOW IT WORKS
-1. Install the Bridge Server: npx @ccpocket/bridge@latest
+1. Install the Bridge Server: npx @gotokens/bridge@latest
 2. Scan the QR code or enter the URL in the app
 3. Start coding from your phone, tablet, or Mac
 

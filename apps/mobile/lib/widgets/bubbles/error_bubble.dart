@@ -36,7 +36,7 @@ String? _errorHint(String? errorCode, AppLocalizations l) {
       'Install Codex CLI on the Bridge machine, then restart Bridge',
     'path_not_allowed' => 'Update BRIDGE_ALLOWED_DIRS on the Bridge server',
     'git_not_available' => l.gitUnavailableHint,
-    'bridge_update_required' => 'npm update -g @ccpocket/bridge',
+    'bridge_update_required' => 'npm update -g @gotokens/bridge',
     'auto_mode_unavailable' =>
       'Use Default mode here, or switch to a Claude environment that supports Auto mode',
     _ => null,
@@ -47,7 +47,7 @@ String? _errorHint(String? errorCode, AppLocalizations l) {
 String? _copyableCommand(String? errorCode) {
   return switch (errorCode) {
     'auth_login_required' || 'auth_token_expired' => 'claude auth login',
-    'bridge_update_required' => 'npm update -g @ccpocket/bridge',
+    'bridge_update_required' => 'npm update -g @gotokens/bridge',
     'codex_cli_not_found' => 'npm install -g @openai/codex',
     _ => null,
   };

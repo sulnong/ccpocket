@@ -21,7 +21,7 @@ Linux デスクトップ版は実験的ビルドとして GitHub Releases で配
 3. CC Pocket Bridge Server を起動します。
 
 ```bash
-npx @ccpocket/bridge@latest
+npx @gotokens/bridge@latest
 ```
 
 4. CC Pocket をインストールし、Bridge Server が表示する QR コードをスキャンします。
@@ -75,14 +75,14 @@ CC Pocket app  <->  自分のマシン上の Bridge Server  <->  Codex / Claude
 常時起動するホストでは、Bridge Server をバックグラウンドサービスとして登録できます。
 
 ```bash
-npx @ccpocket/bridge@latest setup
+npx @gotokens/bridge@latest setup
 ```
 
 サービス化は macOS launchd と Linux systemd に対応しています。
 
 ## 補足
 
-- Claude セッションには `@ccpocket/bridge` `1.25.0` 以上と `ANTHROPIC_API_KEY` が必要です。
+- Claude セッションには `@gotokens/bridge` `1.25.0` 以上と `ANTHROPIC_API_KEY` が必要です。
   新規 Bridge インストールでは、Claude subscription login の `/login` はサポートしていません。
   詳細は [Claude 認証トラブルシューティング](docs/auth-troubleshooting.ja.md) を参照してください。
 - CC Pocket はセルフホストと最小限のデータ収集を前提にしています。Supporter 購入は
@@ -118,5 +118,5 @@ cd apps/mobile && flutter pub get && cd ../..
 
 [FSL-1.1-MIT](LICENSE): Source available。2028-03-17 に MIT へ移行します。
 
-このリポジトリには `@ccpocket/bridge` 向けの Bridge Redistribution Exception が含まれます。
+このリポジトリには `@gotokens/bridge` 向けの Bridge Redistribution Exception が含まれます。
 非公式でありサポート対象外であることを明示する限り、環境固有の fork や再配布が許可されています。

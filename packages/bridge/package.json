@@ -1,6 +1,6 @@
 {
   "name": "@gotokens/bridge",
-  "version": "1.61.2",
+  "version": "1.61.3",
   "description": "Bridge server that connects Claude Agent SDK and Codex CLI sessions to mobile devices via WebSocket",
   "private": false,
   "type": "module",
@@ -26,11 +26,12 @@
     "coding-agent"
   ],
   "bin": {
-    "ccpocket-bridge": "./dist/cli.js"
+    "gotokens-bridge": "./dist/cli.js"
   },
   "main": "dist/index.js",
   "files": [
     "dist",
+    "README.md",
     "LICENSE"
   ],
   "engines": {

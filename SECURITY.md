@@ -4,7 +4,7 @@
 
 | Component | Version | Supported |
 |-----------|---------|-----------|
-| Bridge Server (`@ccpocket/bridge`) | latest | Yes |
+| Bridge Server (`@gotokens/bridge`) | latest | Yes |
 | Mobile App | latest | Yes |
 
 ## Reporting a vulnerability

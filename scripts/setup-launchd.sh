@@ -136,10 +136,10 @@ $ENV_BLOCK
     <false/>
 
     <key>StandardOutPath</key>
-    <string>/tmp/ccpocket-bridge.log</string>
+    <string>/tmp/gotokens-bridge.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/tmp/ccpocket-bridge.err</string>
+    <string>/tmp/gotokens-bridge.err</string>
 </dict>
 </plist>
 EOF

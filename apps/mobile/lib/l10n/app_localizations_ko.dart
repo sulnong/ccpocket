@@ -140,13 +140,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get setupStep1Title => 'Bridge 서버 시작';
 
   @override
-  String get setupStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get setupStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get setupStep2Title => '항상 실행하려면 서비스로 등록';
 
   @override
-  String get setupStep2Command => 'npx --yes @ccpocket/bridge@latest setup';
+  String get setupStep2Command => 'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get setupNetworkHint => '두 기기가 같은 네트워크에 있는지 확인하세요(또는 Tailscale 사용).';
@@ -534,7 +534,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bridgeUpdateSetupRunCommand => '대상 컴퓨터에서 설정 명령을 실행하세요.';
 
   @override
-  String get bridgeUpdateSetupCommand => 'npx @ccpocket/bridge@latest setup';
+  String get bridgeUpdateSetupCommand => 'npx @gotokens/bridge@latest setup';
 
   @override
   String get stopServer => '서버 중지';
@@ -1259,14 +1259,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get guideBridgeStep1 => 'npx로 실행(권장)';
 
   @override
-  String get guideBridgeStep1Command => 'npx --yes @ccpocket/bridge@latest';
+  String get guideBridgeStep1Command => 'npx --yes @gotokens/bridge@latest';
 
   @override
   String get guideBridgeStep2 => '또는 전역 설치';
 
   @override
   String get guideBridgeStep2Command =>
-      'npm install -g @ccpocket/bridge\nccpocket-bridge';
+      'npm install -g @gotokens/bridge\ngotokens-bridge';
 
   @override
   String get guideBridgeQrNote => '시작하면 터미널에 QR 코드가 표시됩니다';
@@ -1335,7 +1335,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get guideLaunchdCommandValue =>
-      'npx --yes @ccpocket/bridge@latest setup';
+      'npx --yes @gotokens/bridge@latest setup';
 
   @override
   String get guideLaunchdRecommendation =>

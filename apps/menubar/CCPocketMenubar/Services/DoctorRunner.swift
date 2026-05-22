@@ -22,12 +22,12 @@ final class DoctorRunner: Sendable {
         return try await runDoctorCLI()
     }
 
-    /// Run `ccpocket-bridge doctor --json` via CLI.
+    /// Run `gotokens-bridge doctor --json` via CLI.
     private func runDoctorCLI() async throws -> DoctorReport {
         return try await withCheckedThrowingContinuation { continuation in
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/zsh")
-            process.arguments = ["-li", "-c", "npx --yes @ccpocket/bridge@latest doctor --json"]
+            process.arguments = ["-li", "-c", "npx --yes @gotokens/bridge@latest doctor --json"]
 
             let pipe = Pipe()
             process.standardOutput = pipe

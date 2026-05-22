@@ -24,11 +24,11 @@ npx @gotokens/bridge@latest
 
 # Or install globally
 npm install -g @gotokens/bridge
-ccpocket-bridge
+gotokens-bridge
 
 # Show CLI help or version
-ccpocket-bridge --help
-ccpocket-bridge --version
+gotokens-bridge --help
+gotokens-bridge --version
 ```
 
 ## Configuration
@@ -74,12 +74,12 @@ BRIDGE_PORT=9000 BRIDGE_API_KEY=my-secret npx @gotokens/bridge@latest
 BRIDGE_PUBLIC_WS_URL=wss://example.ngrok-free.app npx @gotokens/bridge@latest
 
 # Example: same setting via CLI flag
-ccpocket-bridge --public-ws-url wss://example.ngrok-free.app
+gotokens-bridge --public-ws-url wss://example.ngrok-free.app
 
 # Example: disable mDNS advertisement
 BRIDGE_DISABLE_MDNS=1 npx @gotokens/bridge@latest
 # or via CLI flag
-ccpocket-bridge --no-mdns
+gotokens-bridge --no-mdns
 ```
 
 When `BRIDGE_PUBLIC_WS_URL` is set, the startup deep link and terminal QR code
@@ -116,7 +116,7 @@ want the computer to appear as a new relay machine.
 Or with CLI flags:
 
 ```bash
-ccpocket-bridge --relay-url wss://relay.example.com
+gotokens-bridge --relay-url wss://relay.example.com
 ```
 
 When registration succeeds, the Bridge prints a relay deep link and QR code.
@@ -144,7 +144,7 @@ npx @gotokens/bridge@latest
 Or with CLI flags:
 
 ```bash
-ccpocket-bridge \
+gotokens-bridge \
   --relay-url wss://relay.example.com \
   --relay-token change-me
 ```
@@ -177,7 +177,7 @@ Installed package:
 set -a
 . ~/.ccpocket/bridge.env
 set +a
-ccpocket-bridge
+gotokens-bridge
 ```
 
 Security model: relay v1 is a trusted relay. It forwards WebSocket frames and

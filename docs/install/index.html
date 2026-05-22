@@ -839,7 +839,7 @@
     });
 
     function copyCmd() {
-      navigator.clipboard.writeText('npx @ccpocket/bridge@latest').then(() => {
+      navigator.clipboard.writeText('npx @gotokens/bridge@latest').then(() => {
         const btn = document.querySelector('.copy-btn');
         btn.classList.add('copied');
         btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>';
@@ -949,7 +949,7 @@
                 <strong data-i18n="step1Title">Run Bridge</strong>
                 <p data-i18n="step1Desc">Run the Bridge Server on the Mac or Linux machine that has Codex or Claude installed.</p>
                 <div class="code-block">
-                  <code id="bridge-cmd">npx @ccpocket/bridge@latest</code>
+                  <code id="bridge-cmd">npx @gotokens/bridge@latest</code>
                   <button class="copy-btn" onclick="copyCmd()" aria-label="Copy command">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>

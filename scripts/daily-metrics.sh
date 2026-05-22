@@ -16,7 +16,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="K9i-0/ccpocket"
-NPM_PACKAGE="@ccpocket/bridge"
+NPM_PACKAGE="@gotokens/bridge"
 BUNDLE_ID="com.k9i.ccpocket"
 TODAY=$(date -u +"%Y-%m-%d")
 

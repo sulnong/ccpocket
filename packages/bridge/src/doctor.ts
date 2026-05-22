@@ -425,7 +425,7 @@ export async function checkLaunchdService(): Promise<CheckResult> {
       name: "launchd service",
       status: "skip",
       message: "Not registered",
-      remediation: "Register with: ccpocket-bridge setup",
+      remediation: "Register with: gotokens-bridge setup",
     };
   } catch {
     return {
@@ -446,7 +446,7 @@ export async function checkSystemdService(): Promise<CheckResult> {
   }
   try {
     const out = execSync(
-      "systemctl --user is-active ccpocket-bridge.service",
+      "systemctl --user is-active gotokens-bridge.service",
       {
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "pipe"],
@@ -463,14 +463,14 @@ export async function checkSystemdService(): Promise<CheckResult> {
       name: "systemd service",
       status: "skip",
       message: `Status: ${out.trim()}`,
-      remediation: "Register with: ccpocket-bridge setup",
+      remediation: "Register with: gotokens-bridge setup",
     };
   } catch {
     return {
       name: "systemd service",
       status: "skip",
       message: "Not registered",
-      remediation: "Register with: ccpocket-bridge setup",
+      remediation: "Register with: gotokens-bridge setup",
     };
   }
 }
@@ -691,7 +691,7 @@ export function printReport(report: DoctorReport): void {
   const NAME_WIDTH = 22;
 
   console.log("");
-  console.log("ccpocket-bridge doctor");
+  console.log("gotokens-bridge doctor");
   console.log("======================");
 
   // Required checks

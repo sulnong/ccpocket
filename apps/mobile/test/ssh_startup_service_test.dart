@@ -162,7 +162,7 @@ void main() {
         command,
         contains('npx is not available in the remote login shell'),
       );
-      expect(command, contains('npx @ccpocket/bridge@latest setup'));
+      expect(command, contains('npx @gotokens/bridge@latest setup'));
     });
 
     test('checks the npx command configured in the systemd service', () {
