@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.99.2] - 2026-05-22
+
+### Changed
+- Require Bridge 1.61.2 for the latest relay connection behavior.
+
+### Fixed
+- Reconnect immediately when the app returns from the background.
+- Preserve relay-compatible connection URLs when matching saved machines.
+
 ## [1.99.1] - 2026-05-20
 
 ### Changed
