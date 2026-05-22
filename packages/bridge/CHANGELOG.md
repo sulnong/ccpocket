@@ -2,6 +2,11 @@
 
 All notable changes to `@gotokens/bridge` will be documented in this file.
 
+## [1.61.4] - 2026-05-22
+
+### Fixed
+- Load `bonjour-service` through a CommonJS-compatible import so the installed `gotokens-bridge` command starts correctly on Node.js 24.
+
 ## [1.61.3] - 2026-05-22
 
 ### Changed

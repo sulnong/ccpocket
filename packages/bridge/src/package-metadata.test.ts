@@ -18,4 +18,11 @@ describe("package metadata", () => {
     expect(readme).toContain("gotokens-bridge --version");
     expect(readme).not.toContain("ccpocket-bridge");
   });
+
+  it("imports bonjour-service through its CommonJS-compatible default export", async () => {
+    const source = await readFile(new URL("./mdns.ts", import.meta.url), "utf-8");
+
+    expect(source).toContain('createRequire(import.meta.url)("bonjour-service")');
+    expect(source).not.toContain('import { Bonjour');
+  });
 });

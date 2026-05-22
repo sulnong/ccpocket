@@ -1,7 +1,13 @@
-import { Bonjour, type Service } from "bonjour-service";
+import { createRequire } from "node:module";
+import type { Service } from "bonjour-service";
+
+type BonjourConstructor = typeof import("bonjour-service").Bonjour;
+const { Bonjour } = createRequire(import.meta.url)("bonjour-service") as {
+  Bonjour: BonjourConstructor;
+};
 
 export class MdnsAdvertiser {
-  private bonjour: Bonjour | null = null;
+  private bonjour: InstanceType<BonjourConstructor> | null = null;
   private service: Service | null = null;
   private disabled = false;
 
